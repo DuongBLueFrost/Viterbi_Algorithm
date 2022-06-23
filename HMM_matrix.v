@@ -1,0 +1,2475 @@
+module HMM_matrix (key_HMM_matrix, POS, posibility, pre_addr_HMM_matrix_in, RW_HMM_matrix, reset, clk, 
+  change_pre_addr, change_p_index, change_enable, choose_output, 
+  P0, P1, P2, P3, P4, P5, P6, P7, P8 ,P9, P10, pre_addr_HMM_matrix_out, POS_HMM_matrix_out);
+      
+      parameter word_num_bit = 8;
+      parameter w_bit = 4;
+      parameter POS_num_bit = 4;
+      parameter POS_num = 11;
+      parameter word_num = 50;
+      parameter p_size = 32;
+      
+      input [w_bit - 1:0] key_HMM_matrix;
+      input [POS_num_bit - 1:0] POS;
+      input [31:0] posibility;
+      input [POS_num_bit - 1:0] pre_addr_HMM_matrix_in;
+      input RW_HMM_matrix, reset, clk;
+      input [POS_num - 1:0] change_pre_addr;
+      input [POS_num_bit - 1:0] change_p_index;
+      input change_enable, choose_output;
+      output [p_size - 1:0] P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10;
+      output [POS_num - 1:0] pre_addr_HMM_matrix_out;
+      output [POS_num_bit - 1:0] POS_HMM_matrix_out;
+  
+reg [POS_num - 1:0] previous_addr [POS_num - 1:0][word_num - 1:0];
+reg [p_size - 1:0] posibility_reg [POS_num*POS_num - 1:0][word_num - 1:0];
+reg [word_num_bit - 1:0] i, j, m;
+wire [p_size - 1:0] x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10;
+
+assign P0 = choose_output ? x0 : posibility_reg[0 + POS*POS_num][key_HMM_matrix];
+assign P1 = choose_output ? x1 : posibility_reg[1 + POS*POS_num][key_HMM_matrix];
+assign P2 = choose_output ? x2 : posibility_reg[2 + POS*POS_num][key_HMM_matrix];
+assign P3 = choose_output ? x3 : posibility_reg[3 + POS*POS_num][key_HMM_matrix];
+assign P4 = choose_output ? x4 : posibility_reg[4 + POS*POS_num][key_HMM_matrix];
+assign P5 = choose_output ? x5 : posibility_reg[5 + POS*POS_num][key_HMM_matrix];
+assign P6 = choose_output ? x6 : posibility_reg[6 + POS*POS_num][key_HMM_matrix];
+assign P7 = choose_output ? x7 : posibility_reg[7 + POS*POS_num][key_HMM_matrix];
+assign P8 = choose_output ? x8 : posibility_reg[8 + POS*POS_num][key_HMM_matrix];
+assign P9 = choose_output ? x9 : posibility_reg[9 + POS*POS_num][key_HMM_matrix];
+assign P10 = choose_output ? x10 : posibility_reg[10 + POS*POS_num][key_HMM_matrix];
+assign pre_addr_HMM_matrix_out = choose_output ? 0: previous_addr[POS][key_HMM_matrix];
+assign POS_HMM_matrix_out = POS;
+
+Max_posibility max1(.clk(clk), .reset(reset),
+ .P0(posibility_reg[0 + 0*POS_num][key_HMM_matrix]),
+ .P1(posibility_reg[1 + 0*POS_num][key_HMM_matrix]), 
+ .P2(posibility_reg[2 + 0*POS_num][key_HMM_matrix]), 
+ .P3(posibility_reg[3 + 0*POS_num][key_HMM_matrix]), 
+ .P4(posibility_reg[4 + 0*POS_num][key_HMM_matrix]), 
+ .P5(posibility_reg[5 + 0*POS_num][key_HMM_matrix]), 
+ .P6(posibility_reg[6 + 0*POS_num][key_HMM_matrix]), 
+ .P7(posibility_reg[7 + 0*POS_num][key_HMM_matrix]), 
+ .P8(posibility_reg[8 + 0*POS_num][key_HMM_matrix]), 
+ .P9(posibility_reg[9 + 0*POS_num][key_HMM_matrix]), 
+ .P10(posibility_reg[10 + 0*POS_num][key_HMM_matrix]), 
+ .enable(1'b1), .RW_Max_posibility(1'b0),
+ .new_pre_addr(), .max_index(), .last_POS(), .max_pos(x0));
+ 
+Max_posibility max2(.clk(clk), .reset(reset),
+ .P0(posibility_reg[0 + 1*POS_num][key_HMM_matrix]),
+ .P1(posibility_reg[1 + 1*POS_num][key_HMM_matrix]), 
+ .P2(posibility_reg[2 + 1*POS_num][key_HMM_matrix]), 
+ .P3(posibility_reg[3 + 1*POS_num][key_HMM_matrix]), 
+ .P4(posibility_reg[4 + 1*POS_num][key_HMM_matrix]), 
+ .P5(posibility_reg[5 + 1*POS_num][key_HMM_matrix]), 
+ .P6(posibility_reg[6 + 1*POS_num][key_HMM_matrix]), 
+ .P7(posibility_reg[7 + 1*POS_num][key_HMM_matrix]), 
+ .P8(posibility_reg[8 + 1*POS_num][key_HMM_matrix]), 
+ .P9(posibility_reg[9 + 1*POS_num][key_HMM_matrix]), 
+ .P10(posibility_reg[10 + 1*POS_num][key_HMM_matrix]), 
+ .enable(1'b1), .RW_Max_posibility(1'b0),
+ .new_pre_addr(), .max_index(), .last_POS(), .max_pos(x1));
+
+Max_posibility max3(.clk(clk), .reset(reset),
+ .P0(posibility_reg[0 + 2*POS_num][key_HMM_matrix]),
+ .P1(posibility_reg[1 + 2*POS_num][key_HMM_matrix]), 
+ .P2(posibility_reg[2 + 2*POS_num][key_HMM_matrix]), 
+ .P3(posibility_reg[3 + 2*POS_num][key_HMM_matrix]), 
+ .P4(posibility_reg[4 + 2*POS_num][key_HMM_matrix]), 
+ .P5(posibility_reg[5 + 2*POS_num][key_HMM_matrix]), 
+ .P6(posibility_reg[6 + 2*POS_num][key_HMM_matrix]), 
+ .P7(posibility_reg[7 + 2*POS_num][key_HMM_matrix]), 
+ .P8(posibility_reg[8 + 2*POS_num][key_HMM_matrix]), 
+ .P9(posibility_reg[9 + 2*POS_num][key_HMM_matrix]), 
+ .P10(posibility_reg[10 + 2*POS_num][key_HMM_matrix]), 
+ .enable(1'b1), .RW_Max_posibility(1'b0),
+ .new_pre_addr(), .max_index(), .last_POS(), .max_pos(x2));
+
+Max_posibility max4(.clk(clk), .reset(reset),
+ .P0(posibility_reg[0 + 3*POS_num][key_HMM_matrix]),
+ .P1(posibility_reg[1 + 3*POS_num][key_HMM_matrix]), 
+ .P2(posibility_reg[2 + 3*POS_num][key_HMM_matrix]), 
+ .P3(posibility_reg[3 + 3*POS_num][key_HMM_matrix]), 
+ .P4(posibility_reg[4 + 3*POS_num][key_HMM_matrix]), 
+ .P5(posibility_reg[5 + 3*POS_num][key_HMM_matrix]), 
+ .P6(posibility_reg[6 + 3*POS_num][key_HMM_matrix]), 
+ .P7(posibility_reg[7 + 3*POS_num][key_HMM_matrix]), 
+ .P8(posibility_reg[8 + 3*POS_num][key_HMM_matrix]), 
+ .P9(posibility_reg[9 + 3*POS_num][key_HMM_matrix]), 
+ .P10(posibility_reg[10 + 3*POS_num][key_HMM_matrix]), 
+ .enable(1'b1), .RW_Max_posibility(1'b0),
+ .new_pre_addr(), .max_index(), .last_POS(), .max_pos(x3));
+ 
+Max_posibility max5(.clk(clk), .reset(reset),
+ .P0(posibility_reg[0 + 4*POS_num][key_HMM_matrix]),
+ .P1(posibility_reg[1 + 4*POS_num][key_HMM_matrix]), 
+ .P2(posibility_reg[2 + 4*POS_num][key_HMM_matrix]), 
+ .P3(posibility_reg[3 + 4*POS_num][key_HMM_matrix]), 
+ .P4(posibility_reg[4 + 4*POS_num][key_HMM_matrix]), 
+ .P5(posibility_reg[5 + 4*POS_num][key_HMM_matrix]), 
+ .P6(posibility_reg[6 + 4*POS_num][key_HMM_matrix]), 
+ .P7(posibility_reg[7 + 4*POS_num][key_HMM_matrix]), 
+ .P8(posibility_reg[8 + 4*POS_num][key_HMM_matrix]), 
+ .P9(posibility_reg[9 + 4*POS_num][key_HMM_matrix]), 
+ .P10(posibility_reg[10 + 4*POS_num][key_HMM_matrix]), 
+ .enable(1'b1), .RW_Max_posibility(1'b0),
+ .new_pre_addr(), .max_index(), .last_POS(), .max_pos(x4)); 
+
+Max_posibility max6(.clk(clk), .reset(reset),
+ .P0(posibility_reg[0 + 5*POS_num][key_HMM_matrix]),
+ .P1(posibility_reg[1 + 5*POS_num][key_HMM_matrix]), 
+ .P2(posibility_reg[2 + 5*POS_num][key_HMM_matrix]),
+ .P3(posibility_reg[3 + 5*POS_num][key_HMM_matrix]), 
+ .P4(posibility_reg[4 + 5*POS_num][key_HMM_matrix]), 
+ .P5(posibility_reg[5 + 5*POS_num][key_HMM_matrix]), 
+ .P6(posibility_reg[6 + 5*POS_num][key_HMM_matrix]), 
+ .P7(posibility_reg[7 + 5*POS_num][key_HMM_matrix]), 
+ .P8(posibility_reg[8 + 5*POS_num][key_HMM_matrix]), 
+ .P9(posibility_reg[9 + 5*POS_num][key_HMM_matrix]), 
+ .P10(posibility_reg[10 + 5*POS_num][key_HMM_matrix]), 
+ .enable(1'b1), .RW_Max_posibility(1'b0),
+ .new_pre_addr(), .max_index(), .last_POS(), .max_pos(x5));
+ 
+Max_posibility max7(.clk(clk), .reset(reset),
+ .P0(posibility_reg[0 + 6*POS_num][key_HMM_matrix]),
+ .P1(posibility_reg[1 + 6*POS_num][key_HMM_matrix]), 
+ .P2(posibility_reg[2 + 6*POS_num][key_HMM_matrix]), 
+ .P3(posibility_reg[3 + 6*POS_num][key_HMM_matrix]), 
+ .P4(posibility_reg[4 + 6*POS_num][key_HMM_matrix]), 
+ .P5(posibility_reg[5 + 6*POS_num][key_HMM_matrix]), 
+ .P6(posibility_reg[6 + 6*POS_num][key_HMM_matrix]), 
+ .P7(posibility_reg[7 + 6*POS_num][key_HMM_matrix]), 
+ .P8(posibility_reg[8 + 6*POS_num][key_HMM_matrix]), 
+ .P9(posibility_reg[9 + 6*POS_num][key_HMM_matrix]), 
+ .P10(posibility_reg[10 + 6*POS_num][key_HMM_matrix]), 
+ .enable(1'b1), .RW_Max_posibility(1'b0),
+ .new_pre_addr(), .max_index(), .last_POS(), .max_pos(x6));
+
+Max_posibility max8(.clk(clk), .reset(reset),
+ .P0(posibility_reg[0 + 7*POS_num][key_HMM_matrix]),
+ .P1(posibility_reg[1 + 7*POS_num][key_HMM_matrix]), 
+ .P2(posibility_reg[2 + 7*POS_num][key_HMM_matrix]), 
+ .P3(posibility_reg[3 + 7*POS_num][key_HMM_matrix]), 
+ .P4(posibility_reg[4 + 7*POS_num][key_HMM_matrix]), 
+ .P5(posibility_reg[5 + 7*POS_num][key_HMM_matrix]), 
+ .P6(posibility_reg[6 + 7*POS_num][key_HMM_matrix]), 
+ .P7(posibility_reg[7 + 7*POS_num][key_HMM_matrix]), 
+ .P8(posibility_reg[8 + 7*POS_num][key_HMM_matrix]), 
+ .P9(posibility_reg[9 + 7*POS_num][key_HMM_matrix]), 
+ .P10(posibility_reg[10 + 7*POS_num][key_HMM_matrix]), 
+ .enable(1'b1), .RW_Max_posibility(1'b0),
+ .new_pre_addr(), .max_index(), .last_POS(), .max_pos(x7));
+
+Max_posibility max9(.clk(clk), .reset(reset),
+ .P0(posibility_reg[0 + 8*POS_num][key_HMM_matrix]),
+ .P1(posibility_reg[1 + 8*POS_num][key_HMM_matrix]), 
+ .P2(posibility_reg[2 + 8*POS_num][key_HMM_matrix]), 
+ .P3(posibility_reg[3 + 8*POS_num][key_HMM_matrix]), 
+ .P4(posibility_reg[4 + 8*POS_num][key_HMM_matrix]), 
+ .P5(posibility_reg[5 + 8*POS_num][key_HMM_matrix]), 
+ .P6(posibility_reg[6 + 8*POS_num][key_HMM_matrix]), 
+ .P7(posibility_reg[7 + 8*POS_num][key_HMM_matrix]), 
+ .P8(posibility_reg[8 + 8*POS_num][key_HMM_matrix]), 
+ .P9(posibility_reg[9 + 8*POS_num][key_HMM_matrix]), 
+ .P10(posibility_reg[10 + 8*POS_num][key_HMM_matrix]), 
+ .enable(1'b1), .RW_Max_posibility(1'b0),
+ .new_pre_addr(), .max_index(), .last_POS(), .max_pos(x8));
+ 
+Max_posibility max10(.clk(clk), .reset(reset),
+ .P0(posibility_reg[0 + 9*POS_num][key_HMM_matrix]),
+ .P1(posibility_reg[1 + 9*POS_num][key_HMM_matrix]), 
+ .P2(posibility_reg[2 + 9*POS_num][key_HMM_matrix]), 
+ .P3(posibility_reg[3 + 9*POS_num][key_HMM_matrix]), 
+ .P4(posibility_reg[4 + 9*POS_num][key_HMM_matrix]), 
+ .P5(posibility_reg[5 + 9*POS_num][key_HMM_matrix]), 
+ .P6(posibility_reg[6 + 9*POS_num][key_HMM_matrix]), 
+ .P7(posibility_reg[7 + 9*POS_num][key_HMM_matrix]), 
+ .P8(posibility_reg[8 + 9*POS_num][key_HMM_matrix]), 
+ .P9(posibility_reg[9 + 9*POS_num][key_HMM_matrix]), 
+ .P10(posibility_reg[10 + 9*POS_num][key_HMM_matrix]), 
+ .enable(1'b1), .RW_Max_posibility(1'b0),
+ .new_pre_addr(), .max_index(), .last_POS(), .max_pos(x9)); 
+
+Max_posibility max11(.clk(clk), .reset(reset),
+ .P0(posibility_reg[0 + 10*POS_num][key_HMM_matrix]),
+ .P1(posibility_reg[1 + 10*POS_num][key_HMM_matrix]), 
+ .P2(posibility_reg[2 + 10*POS_num][key_HMM_matrix]), 
+ .P3(posibility_reg[3 + 10*POS_num][key_HMM_matrix]), 
+ .P4(posibility_reg[4 + 10*POS_num][key_HMM_matrix]), 
+ .P5(posibility_reg[5 + 10*POS_num][key_HMM_matrix]), 
+ .P6(posibility_reg[6 + 10*POS_num][key_HMM_matrix]), 
+ .P7(posibility_reg[7 + 10*POS_num][key_HMM_matrix]), 
+ .P8(posibility_reg[8 + 10*POS_num][key_HMM_matrix]), 
+ .P9(posibility_reg[9 + 10*POS_num][key_HMM_matrix]), 
+ .P10(posibility_reg[10 + 10*POS_num][key_HMM_matrix]), 
+ .enable(1'b1), .RW_Max_posibility(1'b0),
+ .new_pre_addr(), .max_index(), .last_POS(), .max_pos(x10));
+
+always @(posedge clk or negedge reset) begin 
+    if(!reset) begin 
+          previous_addr[0][0] <= 0;
+    previous_addr[0][1] <= 0;
+    previous_addr[0][2] <= 0;
+    previous_addr[0][3] <= 0;
+    previous_addr[0][4] <= 0;
+    previous_addr[0][5] <= 0;
+    previous_addr[0][6] <= 0;
+    previous_addr[0][7] <= 0;
+    previous_addr[0][8] <= 0;
+    previous_addr[0][9] <= 0;
+    previous_addr[0][10] <= 0;
+    previous_addr[0][11] <= 0;
+    previous_addr[0][12] <= 0;
+    previous_addr[0][13] <= 0;
+    previous_addr[0][14] <= 0;
+    previous_addr[0][15] <= 0;
+    
+    previous_addr[1][0] <= 0;
+    previous_addr[1][1] <= 0;
+    previous_addr[1][2] <= 0;
+    previous_addr[1][3] <= 0;
+    previous_addr[1][4] <= 0;
+    previous_addr[1][5] <= 0;
+    previous_addr[1][6] <= 0;
+    previous_addr[1][7] <= 0;
+    previous_addr[1][8] <= 0;
+    previous_addr[1][9] <= 0;
+    previous_addr[1][10] <= 0;
+    previous_addr[1][11] <= 0;
+    previous_addr[1][12] <= 0;
+    previous_addr[1][13] <= 0;
+    previous_addr[1][14] <= 0;
+    previous_addr[1][15] <= 0;
+    
+    previous_addr[2][0] <= 0;
+    previous_addr[2][1] <= 0;
+    previous_addr[2][2] <= 0;
+    previous_addr[2][3] <= 0;
+    previous_addr[2][4] <= 0;
+    previous_addr[2][5] <= 0;
+    previous_addr[2][6] <= 0;
+    previous_addr[2][7] <= 0;
+    previous_addr[2][8] <= 0;
+    previous_addr[2][9] <= 0;
+    previous_addr[2][10] <= 0;
+    previous_addr[2][11] <= 0;
+    previous_addr[2][12] <= 0;
+    previous_addr[2][13] <= 0;
+    previous_addr[2][14] <= 0;
+    previous_addr[2][15] <= 0;
+    
+    previous_addr[3][0] <= 0;
+    previous_addr[3][1] <= 0;
+    previous_addr[3][2] <= 0;
+    previous_addr[3][3] <= 0;
+    previous_addr[3][4] <= 0;
+    previous_addr[3][5] <= 0;
+    previous_addr[3][6] <= 0;
+    previous_addr[3][7] <= 0;
+    previous_addr[3][8] <= 0;
+    previous_addr[3][9] <= 0;
+    previous_addr[3][10] <= 0;
+    previous_addr[3][11] <= 0;
+    previous_addr[3][12] <= 0;
+    previous_addr[3][13] <= 0;
+    previous_addr[3][14] <= 0;
+    previous_addr[3][15] <= 0;
+    
+    previous_addr[4][0] <= 0;
+    previous_addr[4][1] <= 0;
+    previous_addr[4][2] <= 0;
+    previous_addr[4][3] <= 0;
+    previous_addr[4][4] <= 0;
+    previous_addr[4][5] <= 0;
+    previous_addr[4][6] <= 0;
+    previous_addr[4][7] <= 0;
+    previous_addr[4][8] <= 0;
+    previous_addr[4][9] <= 0;
+    previous_addr[4][10] <= 0;
+    previous_addr[4][11] <= 0;
+    previous_addr[4][12] <= 0;
+    previous_addr[4][13] <= 0;
+    previous_addr[4][14] <= 0;
+    previous_addr[4][15] <= 0;
+    
+    previous_addr[5][0] <= 0;
+    previous_addr[5][1] <= 0;
+    previous_addr[5][2] <= 0;
+    previous_addr[5][3] <= 0;
+    previous_addr[5][4] <= 0;
+    previous_addr[5][5] <= 0;
+    previous_addr[5][6] <= 0;
+    previous_addr[5][7] <= 0;
+    previous_addr[5][8] <= 0;
+    previous_addr[5][9] <= 0;
+    previous_addr[5][10] <= 0;
+    previous_addr[5][11] <= 0;
+    previous_addr[5][12] <= 0;
+    previous_addr[5][13] <= 0;
+    previous_addr[5][14] <= 0;
+    previous_addr[5][15] <= 0;
+    
+    previous_addr[6][0] <= 0;
+    previous_addr[6][1] <= 0;
+    previous_addr[6][2] <= 0;
+    previous_addr[6][3] <= 0;
+    previous_addr[6][4] <= 0;
+    previous_addr[6][5] <= 0;
+    previous_addr[6][6] <= 0;
+    previous_addr[6][7] <= 0;
+    previous_addr[6][8] <= 0;
+    previous_addr[6][9] <= 0;
+    previous_addr[6][10] <= 0;
+    previous_addr[6][11] <= 0;
+    previous_addr[6][12] <= 0;
+    previous_addr[6][13] <= 0;
+    previous_addr[6][14] <= 0;
+    previous_addr[6][15] <= 0;
+    
+    previous_addr[7][0] <= 0;
+    previous_addr[7][1] <= 0;
+    previous_addr[7][2] <= 0;
+    previous_addr[7][3] <= 0;
+    previous_addr[7][4] <= 0;
+    previous_addr[7][5] <= 0;
+    previous_addr[7][6] <= 0;
+    previous_addr[7][7] <= 0;
+    previous_addr[7][8] <= 0;
+    previous_addr[7][9] <= 0;
+    previous_addr[7][10] <= 0;
+    previous_addr[7][11] <= 0;
+    previous_addr[7][12] <= 0;
+    previous_addr[7][13] <= 0;
+    previous_addr[7][14] <= 0;
+    previous_addr[7][15] <= 0;
+    
+    previous_addr[8][0] <= 0;
+    previous_addr[8][1] <= 0;
+    previous_addr[8][2] <= 0;
+    previous_addr[8][3] <= 0;
+    previous_addr[8][4] <= 0;
+    previous_addr[8][5] <= 0;
+    previous_addr[8][6] <= 0;
+    previous_addr[8][7] <= 0;
+    previous_addr[8][8] <= 0;
+    previous_addr[8][9] <= 0;
+    previous_addr[8][10] <= 0;
+    previous_addr[8][11] <= 0;
+    previous_addr[8][12] <= 0;
+    previous_addr[8][13] <= 0;
+    previous_addr[8][14] <= 0;
+    previous_addr[8][15] <= 0;
+    
+    previous_addr[9][0] <= 0;
+    previous_addr[9][1] <= 0;
+    previous_addr[9][2] <= 0;
+    previous_addr[9][3] <= 0;
+    previous_addr[9][4] <= 0;
+    previous_addr[9][5] <= 0;
+    previous_addr[9][6] <= 0;
+    previous_addr[9][7] <= 0;
+    previous_addr[9][8] <= 0;
+    previous_addr[9][9] <= 0;
+    previous_addr[9][10] <= 0;
+    previous_addr[9][11] <= 0;
+    previous_addr[9][12] <= 0;
+    previous_addr[9][13] <= 0;
+    previous_addr[9][14] <= 0;
+    previous_addr[9][15] <= 0;   
+    
+    previous_addr[10][0] <= 0;
+    previous_addr[10][1] <= 0;
+    previous_addr[10][2] <= 0;
+    previous_addr[10][3] <= 0;
+    previous_addr[10][4] <= 0;
+    previous_addr[10][5] <= 0;
+    previous_addr[10][6] <= 0;
+    previous_addr[10][7] <= 0;
+    previous_addr[10][8] <= 0;
+    previous_addr[10][9] <= 0;
+    previous_addr[10][10] <= 0;
+    previous_addr[10][11] <= 0;
+    previous_addr[10][12] <= 0;
+    previous_addr[10][13] <= 0;
+    previous_addr[10][14] <= 0;
+    previous_addr[10][15] <= 0;
+    
+ //---------posibility--------------------  
+    posibility_reg[0][0] <= 0;
+    posibility_reg[0][1] <= 0;
+    posibility_reg[0][2] <= 0;
+    posibility_reg[0][3] <= 0;
+    posibility_reg[0][4] <= 0;
+    posibility_reg[0][5] <= 0;
+    posibility_reg[0][6] <= 0;
+    posibility_reg[0][7] <= 0;
+    posibility_reg[0][8] <= 0;
+    posibility_reg[0][9] <= 0;
+    posibility_reg[0][10] <= 0;
+    posibility_reg[0][11] <= 0;
+    posibility_reg[0][12] <= 0;
+    posibility_reg[0][13] <= 0;
+    posibility_reg[0][14] <= 0;
+    posibility_reg[0][15] <= 0;
+    
+    posibility_reg[1][0] <= 0;
+    posibility_reg[1][1] <= 0;
+    posibility_reg[1][2] <= 0;
+    posibility_reg[1][3] <= 0;
+    posibility_reg[1][4] <= 0;
+    posibility_reg[1][5] <= 0;
+    posibility_reg[1][6] <= 0;
+    posibility_reg[1][7] <= 0;
+    posibility_reg[1][8] <= 0;
+    posibility_reg[1][9] <= 0;
+    posibility_reg[1][10] <= 0;
+    posibility_reg[1][11] <= 0;
+    posibility_reg[1][12] <= 0;
+    posibility_reg[1][13] <= 0;
+    posibility_reg[1][14] <= 0;
+    posibility_reg[1][15] <= 0;
+    
+    posibility_reg[2][0] <= 0;
+    posibility_reg[2][1] <= 0;
+    posibility_reg[2][2] <= 0;
+    posibility_reg[2][3] <= 0;
+    posibility_reg[2][4] <= 0;
+    posibility_reg[2][5] <= 0;
+    posibility_reg[2][6] <= 0;
+    posibility_reg[2][7] <= 0;
+    posibility_reg[2][8] <= 0;
+    posibility_reg[2][9] <= 0;
+    posibility_reg[2][10] <= 0;
+    posibility_reg[2][11] <= 0;
+    posibility_reg[2][12] <= 0;
+    posibility_reg[2][13] <= 0;
+    posibility_reg[2][14] <= 0;
+    posibility_reg[2][15] <= 0;
+    
+    posibility_reg[3][0] <= 0;
+    posibility_reg[3][1] <= 0;
+    posibility_reg[3][2] <= 0;
+    posibility_reg[3][3] <= 0;
+    posibility_reg[3][4] <= 0;
+    posibility_reg[3][5] <= 0;
+    posibility_reg[3][6] <= 0;
+    posibility_reg[3][7] <= 0;
+    posibility_reg[3][8] <= 0;
+    posibility_reg[3][9] <= 0;
+    posibility_reg[3][10] <= 0;
+    posibility_reg[3][11] <= 0;
+    posibility_reg[3][12] <= 0;
+    posibility_reg[3][13] <= 0;
+    posibility_reg[3][14] <= 0;
+    posibility_reg[3][15] <= 0;
+    
+    posibility_reg[4][0] <= 0;
+    posibility_reg[4][1] <= 0;
+    posibility_reg[4][2] <= 0;
+    posibility_reg[4][3] <= 0;
+    posibility_reg[4][4] <= 0;
+    posibility_reg[4][5] <= 0;
+    posibility_reg[4][6] <= 0;
+    posibility_reg[4][7] <= 0;
+    posibility_reg[4][8] <= 0;
+    posibility_reg[4][9] <= 0;
+    posibility_reg[4][10] <= 0;
+    posibility_reg[4][11] <= 0;
+    posibility_reg[4][12] <= 0;
+    posibility_reg[4][13] <= 0;
+    posibility_reg[4][14] <= 0;
+    posibility_reg[4][15] <= 0;
+    
+    posibility_reg[5][0] <= 0;
+    posibility_reg[5][1] <= 0;
+    posibility_reg[5][2] <= 0;
+    posibility_reg[5][3] <= 0;
+    posibility_reg[5][4] <= 0;
+    posibility_reg[5][5] <= 0;
+    posibility_reg[5][6] <= 0;
+    posibility_reg[5][7] <= 0;
+    posibility_reg[5][8] <= 0;
+    posibility_reg[5][9] <= 0;
+    posibility_reg[5][10] <= 0;
+    posibility_reg[5][11] <= 0;
+    posibility_reg[5][12] <= 0;
+    posibility_reg[5][13] <= 0;
+    posibility_reg[5][14] <= 0;
+    posibility_reg[5][15] <= 0;
+    
+    posibility_reg[6][0] <= 0;
+    posibility_reg[6][1] <= 0;
+    posibility_reg[6][2] <= 0;
+    posibility_reg[6][3] <= 0;
+    posibility_reg[6][4] <= 0;
+    posibility_reg[6][5] <= 0;
+    posibility_reg[6][6] <= 0;
+    posibility_reg[6][7] <= 0;
+    posibility_reg[6][8] <= 0;
+    posibility_reg[6][9] <= 0;
+    posibility_reg[6][10] <= 0;
+    posibility_reg[6][11] <= 0;
+    posibility_reg[6][12] <= 0;
+    posibility_reg[6][13] <= 0;
+    posibility_reg[6][14] <= 0;
+    posibility_reg[6][15] <= 0;
+    
+    posibility_reg[7][0] <= 0;
+    posibility_reg[7][1] <= 0;
+    posibility_reg[7][2] <= 0;
+    posibility_reg[7][3] <= 0;
+    posibility_reg[7][4] <= 0;
+    posibility_reg[7][5] <= 0;
+    posibility_reg[7][6] <= 0;
+    posibility_reg[7][7] <= 0;
+    posibility_reg[7][8] <= 0;
+    posibility_reg[7][9] <= 0;
+    posibility_reg[7][10] <= 0;
+    posibility_reg[7][11] <= 0;
+    posibility_reg[7][12] <= 0;
+    posibility_reg[7][13] <= 0;
+    posibility_reg[7][14] <= 0;
+    posibility_reg[7][15] <= 0;
+    
+    posibility_reg[8][0] <= 0;
+    posibility_reg[8][1] <= 0;
+    posibility_reg[8][2] <= 0;
+    posibility_reg[8][3] <= 0;
+    posibility_reg[8][4] <= 0;
+    posibility_reg[8][5] <= 0;
+    posibility_reg[8][6] <= 0;
+    posibility_reg[8][7] <= 0;
+    posibility_reg[8][8] <= 0;
+    posibility_reg[8][9] <= 0;
+    posibility_reg[8][10] <= 0;
+    posibility_reg[8][11] <= 0;
+    posibility_reg[8][12] <= 0;
+    posibility_reg[8][13] <= 0;
+    posibility_reg[8][14] <= 0;
+    posibility_reg[8][15] <= 0;
+    
+    posibility_reg[9][0] <= 0;
+    posibility_reg[9][1] <= 0;
+    posibility_reg[9][2] <= 0;
+    posibility_reg[9][3] <= 0;
+    posibility_reg[9][4] <= 0;
+    posibility_reg[9][5] <= 0;
+    posibility_reg[9][6] <= 0;
+    posibility_reg[9][7] <= 0;
+    posibility_reg[9][8] <= 0;
+    posibility_reg[9][9] <= 0;
+    posibility_reg[9][10] <= 0;
+    posibility_reg[9][11] <= 0;
+    posibility_reg[9][12] <= 0;
+    posibility_reg[9][13] <= 0;
+    posibility_reg[9][14] <= 0;
+    posibility_reg[9][15] <= 0;   
+    
+    posibility_reg[10][0] <= 0;
+    posibility_reg[10][1] <= 0;
+    posibility_reg[10][2] <= 0;
+    posibility_reg[10][3] <= 0;
+    posibility_reg[10][4] <= 0;
+    posibility_reg[10][5] <= 0;
+    posibility_reg[10][6] <= 0;
+    posibility_reg[10][7] <= 0;
+    posibility_reg[10][8] <= 0;
+    posibility_reg[10][9] <= 0;
+    posibility_reg[10][10] <= 0;
+    posibility_reg[10][11] <= 0;
+    posibility_reg[10][12] <= 0;
+    posibility_reg[10][13] <= 0;
+    posibility_reg[10][14] <= 0;
+    posibility_reg[10][15] <= 0;
+    
+    posibility_reg[11][0] <= 0;
+    posibility_reg[11][1] <= 0;
+    posibility_reg[11][2] <= 0;
+    posibility_reg[11][3] <= 0;
+    posibility_reg[11][4] <= 0;
+    posibility_reg[11][5] <= 0;
+    posibility_reg[11][6] <= 0;
+    posibility_reg[11][7] <= 0;
+    posibility_reg[11][8] <= 0;
+    posibility_reg[11][9] <= 0;
+    posibility_reg[11][10] <= 0;
+    posibility_reg[11][11] <= 0;
+    posibility_reg[11][12] <= 0;
+    posibility_reg[11][13] <= 0;
+    posibility_reg[11][14] <= 0;
+    posibility_reg[11][15] <= 0;
+    
+    posibility_reg[12][0] <= 0;
+    posibility_reg[12][1] <= 0;
+    posibility_reg[12][2] <= 0;
+    posibility_reg[12][3] <= 0;
+    posibility_reg[12][4] <= 0;
+    posibility_reg[12][5] <= 0;
+    posibility_reg[12][6] <= 0;
+    posibility_reg[12][7] <= 0;
+    posibility_reg[12][8] <= 0;
+    posibility_reg[12][9] <= 0;
+    posibility_reg[12][10] <= 0;
+    posibility_reg[12][11] <= 0;
+    posibility_reg[12][12] <= 0;
+    posibility_reg[12][13] <= 0;
+    posibility_reg[12][14] <= 0;
+    posibility_reg[12][15] <= 0;
+    
+    posibility_reg[13][0] <= 0;
+    posibility_reg[13][1] <= 0;
+    posibility_reg[13][2] <= 0;
+    posibility_reg[13][3] <= 0;
+    posibility_reg[13][4] <= 0;
+    posibility_reg[13][5] <= 0;
+    posibility_reg[13][6] <= 0;
+    posibility_reg[13][7] <= 0;
+    posibility_reg[13][8] <= 0;
+    posibility_reg[13][9] <= 0;
+    posibility_reg[13][10] <= 0;
+    posibility_reg[13][11] <= 0;
+    posibility_reg[13][12] <= 0;
+    posibility_reg[13][13] <= 0;
+    posibility_reg[13][14] <= 0;
+    posibility_reg[13][15] <= 0;
+    
+    posibility_reg[14][0] <= 0;
+    posibility_reg[14][1] <= 0;
+    posibility_reg[14][2] <= 0;
+    posibility_reg[14][3] <= 0;
+    posibility_reg[14][4] <= 0;
+    posibility_reg[14][5] <= 0;
+    posibility_reg[14][6] <= 0;
+    posibility_reg[14][7] <= 0;
+    posibility_reg[14][8] <= 0;
+    posibility_reg[14][9] <= 0;
+    posibility_reg[14][10] <= 0;
+    posibility_reg[14][11] <= 0;
+    posibility_reg[14][12] <= 0;
+    posibility_reg[14][13] <= 0;
+    posibility_reg[14][14] <= 0;
+    posibility_reg[14][15] <= 0;
+    
+    posibility_reg[15][0] <= 0;
+    posibility_reg[15][1] <= 0;
+    posibility_reg[15][2] <= 0;
+    posibility_reg[15][3] <= 0;
+    posibility_reg[15][4] <= 0;
+    posibility_reg[15][5] <= 0;
+    posibility_reg[15][6] <= 0;
+    posibility_reg[15][7] <= 0;
+    posibility_reg[15][8] <= 0;
+    posibility_reg[15][9] <= 0;
+    posibility_reg[15][10] <= 0;
+    posibility_reg[15][11] <= 0;
+    posibility_reg[15][12] <= 0;
+    posibility_reg[15][13] <= 0;
+    posibility_reg[15][14] <= 0;
+    posibility_reg[15][15] <= 0;
+    
+    posibility_reg[16][0] <= 0;
+    posibility_reg[16][1] <= 0;
+    posibility_reg[16][2] <= 0;
+    posibility_reg[16][3] <= 0;
+    posibility_reg[16][4] <= 0;
+    posibility_reg[16][5] <= 0;
+    posibility_reg[16][6] <= 0;
+    posibility_reg[16][7] <= 0;
+    posibility_reg[16][8] <= 0;
+    posibility_reg[16][9] <= 0;
+    posibility_reg[16][10] <= 0;
+    posibility_reg[16][11] <= 0;
+    posibility_reg[16][12] <= 0;
+    posibility_reg[16][13] <= 0;
+    posibility_reg[16][14] <= 0;
+    posibility_reg[16][15] <= 0;
+    
+    posibility_reg[17][0] <= 0;
+    posibility_reg[17][1] <= 0;
+    posibility_reg[17][2] <= 0;
+    posibility_reg[17][3] <= 0;
+    posibility_reg[17][4] <= 0;
+    posibility_reg[17][5] <= 0;
+    posibility_reg[17][6] <= 0;
+    posibility_reg[17][7] <= 0;
+    posibility_reg[17][8] <= 0;
+    posibility_reg[17][9] <= 0;
+    posibility_reg[17][10] <= 0;
+    posibility_reg[17][11] <= 0;
+    posibility_reg[17][12] <= 0;
+    posibility_reg[17][13] <= 0;
+    posibility_reg[17][14] <= 0;
+    posibility_reg[17][15] <= 0;
+    
+    posibility_reg[18][0] <= 0;
+    posibility_reg[18][1] <= 0;
+    posibility_reg[18][2] <= 0;
+    posibility_reg[18][3] <= 0;
+    posibility_reg[18][4] <= 0;
+    posibility_reg[18][5] <= 0;
+    posibility_reg[18][6] <= 0;
+    posibility_reg[18][7] <= 0;
+    posibility_reg[18][8] <= 0;
+    posibility_reg[18][9] <= 0;
+    posibility_reg[18][10] <= 0;
+    posibility_reg[18][11] <= 0;
+    posibility_reg[18][12] <= 0;
+    posibility_reg[18][13] <= 0;
+    posibility_reg[18][14] <= 0;
+    posibility_reg[18][15] <= 0;
+    
+    posibility_reg[19][0] <= 0;
+    posibility_reg[19][1] <= 0;
+    posibility_reg[19][2] <= 0;
+    posibility_reg[19][3] <= 0;
+    posibility_reg[19][4] <= 0;
+    posibility_reg[19][5] <= 0;
+    posibility_reg[19][6] <= 0;
+    posibility_reg[19][7] <= 0;
+    posibility_reg[19][8] <= 0;
+    posibility_reg[19][9] <= 0;
+    posibility_reg[19][10] <= 0;
+    posibility_reg[19][11] <= 0;
+    posibility_reg[19][12] <= 0;
+    posibility_reg[19][13] <= 0;
+    posibility_reg[19][14] <= 0;
+    posibility_reg[19][15] <= 0;
+    
+    posibility_reg[20][0] <= 0;
+    posibility_reg[20][1] <= 0;
+    posibility_reg[20][2] <= 0;
+    posibility_reg[20][3] <= 0;
+    posibility_reg[20][4] <= 0;
+    posibility_reg[20][5] <= 0;
+    posibility_reg[20][6] <= 0;
+    posibility_reg[20][7] <= 0;
+    posibility_reg[20][8] <= 0;
+    posibility_reg[20][9] <= 0;
+    posibility_reg[20][10] <= 0;
+    posibility_reg[20][11] <= 0;
+    posibility_reg[20][12] <= 0;
+    posibility_reg[20][13] <= 0;
+    posibility_reg[20][14] <= 0;
+    posibility_reg[20][15] <= 0;
+    
+    posibility_reg[21][0] <= 0;
+    posibility_reg[21][1] <= 0;
+    posibility_reg[21][2] <= 0;
+    posibility_reg[21][3] <= 0;
+    posibility_reg[21][4] <= 0;
+    posibility_reg[21][5] <= 0;
+    posibility_reg[21][6] <= 0;
+    posibility_reg[21][7] <= 0;
+    posibility_reg[21][8] <= 0;
+    posibility_reg[21][9] <= 0;
+    posibility_reg[21][10] <= 0;
+    posibility_reg[21][11] <= 0;
+    posibility_reg[21][12] <= 0;
+    posibility_reg[21][13] <= 0;
+    posibility_reg[21][14] <= 0;
+    posibility_reg[21][15] <= 0;  
+    
+    posibility_reg[22][0] <= 0;
+    posibility_reg[22][1] <= 0;
+    posibility_reg[22][2] <= 0;
+    posibility_reg[22][3] <= 0;
+    posibility_reg[22][4] <= 0;
+    posibility_reg[22][5] <= 0;
+    posibility_reg[22][6] <= 0;
+    posibility_reg[22][7] <= 0;
+    posibility_reg[22][8] <= 0;
+    posibility_reg[22][9] <= 0;
+    posibility_reg[22][10] <= 0;
+    posibility_reg[22][11] <= 0;
+    posibility_reg[22][12] <= 0;
+    posibility_reg[22][13] <= 0;
+    posibility_reg[22][14] <= 0;
+    posibility_reg[22][15] <= 0;  
+    
+    posibility_reg[23][0] <= 0;
+    posibility_reg[23][1] <= 0;
+    posibility_reg[23][2] <= 0;
+    posibility_reg[23][3] <= 0;
+    posibility_reg[23][4] <= 0;
+    posibility_reg[23][5] <= 0;
+    posibility_reg[23][6] <= 0;
+    posibility_reg[23][7] <= 0;
+    posibility_reg[23][8] <= 0;
+    posibility_reg[23][9] <= 0;
+    posibility_reg[23][10] <= 0;
+    posibility_reg[23][11] <= 0;
+    posibility_reg[23][12] <= 0;
+    posibility_reg[23][13] <= 0;
+    posibility_reg[23][14] <= 0;
+    posibility_reg[23][15] <= 0;   
+    
+    posibility_reg[24][0] <= 0;
+    posibility_reg[24][1] <= 0;
+    posibility_reg[24][2] <= 0;
+    posibility_reg[24][3] <= 0;
+    posibility_reg[24][4] <= 0;
+    posibility_reg[24][5] <= 0;
+    posibility_reg[24][6] <= 0;
+    posibility_reg[24][7] <= 0;
+    posibility_reg[24][8] <= 0;
+    posibility_reg[24][9] <= 0;
+    posibility_reg[24][10] <= 0;
+    posibility_reg[24][11] <= 0;
+    posibility_reg[24][12] <= 0;
+    posibility_reg[24][13] <= 0;
+    posibility_reg[24][14] <= 0;
+    posibility_reg[24][15] <= 0; 
+    
+    posibility_reg[25][0] <= 0;
+    posibility_reg[25][1] <= 0;
+    posibility_reg[25][2] <= 0;
+    posibility_reg[25][3] <= 0;
+    posibility_reg[25][4] <= 0;
+    posibility_reg[25][5] <= 0;
+    posibility_reg[25][6] <= 0;
+    posibility_reg[25][7] <= 0;
+    posibility_reg[25][8] <= 0;
+    posibility_reg[25][9] <= 0;
+    posibility_reg[25][10] <= 0;
+    posibility_reg[25][11] <= 0;
+    posibility_reg[25][12] <= 0;
+    posibility_reg[25][13] <= 0;
+    posibility_reg[25][14] <= 0;
+    posibility_reg[25][15] <= 0;  
+    
+    posibility_reg[26][0] <= 0;
+    posibility_reg[26][1] <= 0;
+    posibility_reg[26][2] <= 0;
+    posibility_reg[26][3] <= 0;
+    posibility_reg[26][4] <= 0;
+    posibility_reg[26][5] <= 0;
+    posibility_reg[26][6] <= 0;
+    posibility_reg[26][7] <= 0;
+    posibility_reg[26][8] <= 0;
+    posibility_reg[26][9] <= 0;
+    posibility_reg[26][10] <= 0;
+    posibility_reg[26][11] <= 0;
+    posibility_reg[26][12] <= 0;
+    posibility_reg[26][13] <= 0;
+    posibility_reg[26][14] <= 0;
+    posibility_reg[26][15] <= 0;   
+    
+    posibility_reg[27][0] <= 0;
+    posibility_reg[27][1] <= 0;
+    posibility_reg[27][2] <= 0;
+    posibility_reg[27][3] <= 0;
+    posibility_reg[27][4] <= 0;
+    posibility_reg[27][5] <= 0;
+    posibility_reg[27][6] <= 0;
+    posibility_reg[27][7] <= 0;
+    posibility_reg[27][8] <= 0;
+    posibility_reg[27][9] <= 0;
+    posibility_reg[27][10] <= 0;
+    posibility_reg[27][11] <= 0;
+    posibility_reg[27][12] <= 0;
+    posibility_reg[27][13] <= 0;
+    posibility_reg[27][14] <= 0;
+    posibility_reg[27][15] <= 0;
+    
+    posibility_reg[28][0] <= 0;
+    posibility_reg[28][1] <= 0;
+    posibility_reg[28][2] <= 0;
+    posibility_reg[28][3] <= 0;
+    posibility_reg[28][4] <= 0;
+    posibility_reg[28][5] <= 0;
+    posibility_reg[28][6] <= 0;
+    posibility_reg[28][7] <= 0;
+    posibility_reg[28][8] <= 0;
+    posibility_reg[28][9] <= 0;
+    posibility_reg[28][10] <= 0;
+    posibility_reg[28][11] <= 0;
+    posibility_reg[28][12] <= 0;
+    posibility_reg[28][13] <= 0;
+    posibility_reg[28][14] <= 0;
+    posibility_reg[28][15] <= 0;
+    
+    posibility_reg[29][0] <= 0;
+    posibility_reg[29][1] <= 0;
+    posibility_reg[29][2] <= 0;
+    posibility_reg[29][3] <= 0;
+    posibility_reg[29][4] <= 0;
+    posibility_reg[29][5] <= 0;
+    posibility_reg[29][6] <= 0;
+    posibility_reg[29][7] <= 0;
+    posibility_reg[29][8] <= 0;
+    posibility_reg[29][9] <= 0;
+    posibility_reg[29][10] <= 0;
+    posibility_reg[29][11] <= 0;
+    posibility_reg[29][12] <= 0;
+    posibility_reg[29][13] <= 0;
+    posibility_reg[29][14] <= 0;
+    posibility_reg[29][15] <= 0;        
+    
+    posibility_reg[30][0] <= 0;
+    posibility_reg[30][1] <= 0;
+    posibility_reg[30][2] <= 0;
+    posibility_reg[30][3] <= 0;
+    posibility_reg[30][4] <= 0;
+    posibility_reg[30][5] <= 0;
+    posibility_reg[30][6] <= 0;
+    posibility_reg[30][7] <= 0;
+    posibility_reg[30][8] <= 0;
+    posibility_reg[30][9] <= 0;
+    posibility_reg[30][10] <= 0;
+    posibility_reg[30][11] <= 0;
+    posibility_reg[30][12] <= 0;
+    posibility_reg[30][13] <= 0;
+    posibility_reg[30][14] <= 0;
+    posibility_reg[30][15] <= 0;     
+    
+    posibility_reg[31][0] <= 0;
+    posibility_reg[31][1] <= 0;
+    posibility_reg[31][2] <= 0;
+    posibility_reg[31][3] <= 0;
+    posibility_reg[31][4] <= 0;
+    posibility_reg[31][5] <= 0;
+    posibility_reg[31][6] <= 0;
+    posibility_reg[31][7] <= 0;
+    posibility_reg[31][8] <= 0;
+    posibility_reg[31][9] <= 0;
+    posibility_reg[31][10] <= 0;
+    posibility_reg[31][11] <= 0;
+    posibility_reg[31][12] <= 0;
+    posibility_reg[31][13] <= 0;
+    posibility_reg[31][14] <= 0;
+    posibility_reg[31][15] <= 0; 
+    
+    posibility_reg[32][0] <= 0;
+    posibility_reg[32][1] <= 0;
+    posibility_reg[32][2] <= 0;
+    posibility_reg[32][3] <= 0;
+    posibility_reg[32][4] <= 0;
+    posibility_reg[32][5] <= 0;
+    posibility_reg[32][6] <= 0;
+    posibility_reg[32][7] <= 0;
+    posibility_reg[32][8] <= 0;
+    posibility_reg[32][9] <= 0;
+    posibility_reg[32][10] <= 0;
+    posibility_reg[32][11] <= 0;
+    posibility_reg[32][12] <= 0;
+    posibility_reg[32][13] <= 0;
+    posibility_reg[32][14] <= 0;
+    posibility_reg[32][15] <= 0; 
+    
+    posibility_reg[33][0] <= 0;
+    posibility_reg[33][1] <= 0;
+    posibility_reg[33][2] <= 0;
+    posibility_reg[33][3] <= 0;
+    posibility_reg[33][4] <= 0;
+    posibility_reg[33][5] <= 0;
+    posibility_reg[33][6] <= 0;
+    posibility_reg[33][7] <= 0;
+    posibility_reg[33][8] <= 0;
+    posibility_reg[33][9] <= 0;
+    posibility_reg[33][10] <= 0;
+    posibility_reg[33][11] <= 0;
+    posibility_reg[33][12] <= 0;
+    posibility_reg[33][13] <= 0;
+    posibility_reg[33][14] <= 0;
+    posibility_reg[33][15] <= 0;       
+    
+    posibility_reg[34][0] <= 0;
+    posibility_reg[34][1] <= 0;
+    posibility_reg[34][2] <= 0;
+    posibility_reg[34][3] <= 0;
+    posibility_reg[34][4] <= 0;
+    posibility_reg[34][5] <= 0;
+    posibility_reg[34][6] <= 0;
+    posibility_reg[34][7] <= 0;
+    posibility_reg[34][8] <= 0;
+    posibility_reg[34][9] <= 0;
+    posibility_reg[34][10] <= 0;
+    posibility_reg[34][11] <= 0;
+    posibility_reg[34][12] <= 0;
+    posibility_reg[34][13] <= 0;
+    posibility_reg[34][14] <= 0;
+    posibility_reg[34][15] <= 0; 
+    
+    posibility_reg[35][0] <= 0;
+    posibility_reg[35][1] <= 0;
+    posibility_reg[35][2] <= 0;
+    posibility_reg[35][3] <= 0;
+    posibility_reg[35][4] <= 0;
+    posibility_reg[35][5] <= 0;
+    posibility_reg[35][6] <= 0;
+    posibility_reg[35][7] <= 0;
+    posibility_reg[35][8] <= 0;
+    posibility_reg[35][9] <= 0;
+    posibility_reg[35][10] <= 0;
+    posibility_reg[35][11] <= 0;
+    posibility_reg[35][12] <= 0;
+    posibility_reg[35][13] <= 0;
+    posibility_reg[35][14] <= 0;
+    posibility_reg[35][15] <= 0;
+    
+    posibility_reg[36][0] <= 0;
+    posibility_reg[36][1] <= 0;
+    posibility_reg[36][2] <= 0;
+    posibility_reg[36][3] <= 0;
+    posibility_reg[36][4] <= 0;
+    posibility_reg[36][5] <= 0;
+    posibility_reg[36][6] <= 0;
+    posibility_reg[36][7] <= 0;
+    posibility_reg[36][8] <= 0;
+    posibility_reg[36][9] <= 0;
+    posibility_reg[36][10] <= 0;
+    posibility_reg[36][11] <= 0;
+    posibility_reg[36][12] <= 0;
+    posibility_reg[36][13] <= 0;
+    posibility_reg[36][14] <= 0;
+    posibility_reg[36][15] <= 0;
+    
+    posibility_reg[37][0] <= 0;
+    posibility_reg[37][1] <= 0;
+    posibility_reg[37][2] <= 0;
+    posibility_reg[37][3] <= 0;
+    posibility_reg[37][4] <= 0;
+    posibility_reg[37][5] <= 0;
+    posibility_reg[37][6] <= 0;
+    posibility_reg[37][7] <= 0;
+    posibility_reg[37][8] <= 0;
+    posibility_reg[37][9] <= 0;
+    posibility_reg[37][10] <= 0;
+    posibility_reg[37][11] <= 0;
+    posibility_reg[37][12] <= 0;
+    posibility_reg[37][13] <= 0;
+    posibility_reg[37][14] <= 0;
+    posibility_reg[37][15] <= 0;
+    
+    posibility_reg[38][0] <= 0;
+    posibility_reg[38][1] <= 0;
+    posibility_reg[38][2] <= 0;
+    posibility_reg[38][3] <= 0;
+    posibility_reg[38][4] <= 0;
+    posibility_reg[38][5] <= 0;
+    posibility_reg[38][6] <= 0;
+    posibility_reg[38][7] <= 0;
+    posibility_reg[38][8] <= 0;
+    posibility_reg[38][9] <= 0;
+    posibility_reg[38][10] <= 0;
+    posibility_reg[38][11] <= 0;
+    posibility_reg[38][12] <= 0;
+    posibility_reg[38][13] <= 0;
+    posibility_reg[38][14] <= 0;
+    posibility_reg[38][15] <= 0;
+    
+    posibility_reg[39][0] <= 0;
+    posibility_reg[39][1] <= 0;
+    posibility_reg[39][2] <= 0;
+    posibility_reg[39][3] <= 0;
+    posibility_reg[39][4] <= 0;
+    posibility_reg[39][5] <= 0;
+    posibility_reg[39][6] <= 0;
+    posibility_reg[39][7] <= 0;
+    posibility_reg[39][8] <= 0;
+    posibility_reg[39][9] <= 0;
+    posibility_reg[39][10] <= 0;
+    posibility_reg[39][11] <= 0;
+    posibility_reg[39][12] <= 0;
+    posibility_reg[39][13] <= 0;
+    posibility_reg[39][14] <= 0;
+    posibility_reg[39][15] <= 0;
+    
+    posibility_reg[40][0] <= 0;
+    posibility_reg[40][1] <= 0;
+    posibility_reg[40][2] <= 0;
+    posibility_reg[40][3] <= 0;
+    posibility_reg[40][4] <= 0;
+    posibility_reg[40][5] <= 0;
+    posibility_reg[40][6] <= 0;
+    posibility_reg[40][7] <= 0;
+    posibility_reg[40][8] <= 0;
+    posibility_reg[40][9] <= 0;
+    posibility_reg[40][10] <= 0;
+    posibility_reg[40][11] <= 0;
+    posibility_reg[40][12] <= 0;
+    posibility_reg[40][13] <= 0;
+    posibility_reg[40][14] <= 0;
+    posibility_reg[40][15] <= 0;
+    
+    posibility_reg[41][0] <= 0;
+    posibility_reg[41][1] <= 0;
+    posibility_reg[41][2] <= 0;
+    posibility_reg[41][3] <= 0;
+    posibility_reg[41][4] <= 0;
+    posibility_reg[41][5] <= 0;
+    posibility_reg[41][6] <= 0;
+    posibility_reg[41][7] <= 0;
+    posibility_reg[41][8] <= 0;
+    posibility_reg[41][9] <= 0;
+    posibility_reg[41][10] <= 0;
+    posibility_reg[41][11] <= 0;
+    posibility_reg[41][12] <= 0;
+    posibility_reg[41][13] <= 0;
+    posibility_reg[41][14] <= 0;
+    posibility_reg[41][15] <= 0;
+    
+    posibility_reg[42][0] <= 0;
+    posibility_reg[42][1] <= 0;
+    posibility_reg[42][2] <= 0;
+    posibility_reg[42][3] <= 0;
+    posibility_reg[42][4] <= 0;
+    posibility_reg[42][5] <= 0;
+    posibility_reg[42][6] <= 0;
+    posibility_reg[42][7] <= 0;
+    posibility_reg[42][8] <= 0;
+    posibility_reg[42][9] <= 0;
+    posibility_reg[42][10] <= 0;
+    posibility_reg[42][11] <= 0;
+    posibility_reg[42][12] <= 0;
+    posibility_reg[42][13] <= 0;
+    posibility_reg[42][14] <= 0;
+    posibility_reg[42][15] <= 0;
+    
+    posibility_reg[43][0] <= 0;
+    posibility_reg[43][1] <= 0;
+    posibility_reg[43][2] <= 0;
+    posibility_reg[43][3] <= 0;
+    posibility_reg[43][4] <= 0;
+    posibility_reg[43][5] <= 0;
+    posibility_reg[43][6] <= 0;
+    posibility_reg[43][7] <= 0;
+    posibility_reg[43][8] <= 0;
+    posibility_reg[43][9] <= 0;
+    posibility_reg[43][10] <= 0;
+    posibility_reg[43][11] <= 0;
+    posibility_reg[43][12] <= 0;
+    posibility_reg[43][13] <= 0;
+    posibility_reg[43][14] <= 0;
+    posibility_reg[43][15] <= 0;
+    
+    posibility_reg[44][0] <= 0;
+    posibility_reg[44][1] <= 0;
+    posibility_reg[44][2] <= 0;
+    posibility_reg[44][3] <= 0;
+    posibility_reg[44][4] <= 0;
+    posibility_reg[44][5] <= 0;
+    posibility_reg[44][6] <= 0;
+    posibility_reg[44][7] <= 0;
+    posibility_reg[44][8] <= 0;
+    posibility_reg[44][9] <= 0;
+    posibility_reg[44][10] <= 0;
+    posibility_reg[44][11] <= 0;
+    posibility_reg[44][12] <= 0;
+    posibility_reg[44][13] <= 0;
+    posibility_reg[44][14] <= 0;
+    posibility_reg[44][15] <= 0;
+    
+    posibility_reg[45][0] <= 0;
+    posibility_reg[45][1] <= 0;
+    posibility_reg[45][2] <= 0;
+    posibility_reg[45][3] <= 0;
+    posibility_reg[45][4] <= 0;
+    posibility_reg[45][5] <= 0;
+    posibility_reg[45][6] <= 0;
+    posibility_reg[45][7] <= 0;
+    posibility_reg[45][8] <= 0;
+    posibility_reg[45][9] <= 0;
+    posibility_reg[45][10] <= 0;
+    posibility_reg[45][11] <= 0;
+    posibility_reg[45][12] <= 0;
+    posibility_reg[45][13] <= 0;
+    posibility_reg[45][14] <= 0;
+    posibility_reg[45][15] <= 0;
+    
+    posibility_reg[46][0] <= 0;
+    posibility_reg[46][1] <= 0;
+    posibility_reg[46][2] <= 0;
+    posibility_reg[46][3] <= 0;
+    posibility_reg[46][4] <= 0;
+    posibility_reg[46][5] <= 0;
+    posibility_reg[46][6] <= 0;
+    posibility_reg[46][7] <= 0;
+    posibility_reg[46][8] <= 0;
+    posibility_reg[46][9] <= 0;
+    posibility_reg[46][10] <= 0;
+    posibility_reg[46][11] <= 0;
+    posibility_reg[46][12] <= 0;
+    posibility_reg[46][13] <= 0;
+    posibility_reg[46][14] <= 0;
+    posibility_reg[46][15] <= 0;
+    
+    posibility_reg[47][0] <= 0;
+    posibility_reg[47][1] <= 0;
+    posibility_reg[47][2] <= 0;
+    posibility_reg[47][3] <= 0;
+    posibility_reg[47][4] <= 0;
+    posibility_reg[47][5] <= 0;
+    posibility_reg[47][6] <= 0;
+    posibility_reg[47][7] <= 0;
+    posibility_reg[47][8] <= 0;
+    posibility_reg[47][9] <= 0;
+    posibility_reg[47][10] <= 0;
+    posibility_reg[47][11] <= 0;
+    posibility_reg[47][12] <= 0;
+    posibility_reg[47][13] <= 0;
+    posibility_reg[47][14] <= 0;
+    posibility_reg[47][15] <= 0;
+    
+    posibility_reg[48][0] <= 0;
+    posibility_reg[48][1] <= 0;
+    posibility_reg[48][2] <= 0;
+    posibility_reg[48][3] <= 0;
+    posibility_reg[48][4] <= 0;
+    posibility_reg[48][5] <= 0;
+    posibility_reg[48][6] <= 0;
+    posibility_reg[48][7] <= 0;
+    posibility_reg[48][8] <= 0;
+    posibility_reg[48][9] <= 0;
+    posibility_reg[48][10] <= 0;
+    posibility_reg[48][11] <= 0;
+    posibility_reg[48][12] <= 0;
+    posibility_reg[48][13] <= 0;
+    posibility_reg[48][14] <= 0;
+    posibility_reg[48][15] <= 0;
+    
+    posibility_reg[49][0] <= 0;
+    posibility_reg[49][1] <= 0;
+    posibility_reg[49][2] <= 0;
+    posibility_reg[49][3] <= 0;
+    posibility_reg[49][4] <= 0;
+    posibility_reg[49][5] <= 0;
+    posibility_reg[49][6] <= 0;
+    posibility_reg[49][7] <= 0;
+    posibility_reg[49][8] <= 0;
+    posibility_reg[49][9] <= 0;
+    posibility_reg[49][10] <= 0;
+    posibility_reg[49][11] <= 0;
+    posibility_reg[49][12] <= 0;
+    posibility_reg[49][13] <= 0;
+    posibility_reg[49][14] <= 0;
+    posibility_reg[49][15] <= 0;
+    
+    posibility_reg[50][0] <= 0;
+    posibility_reg[50][1] <= 0;
+    posibility_reg[50][2] <= 0;
+    posibility_reg[50][3] <= 0;
+    posibility_reg[50][4] <= 0;
+    posibility_reg[50][5] <= 0;
+    posibility_reg[50][6] <= 0;
+    posibility_reg[50][7] <= 0;
+    posibility_reg[50][8] <= 0;
+    posibility_reg[50][9] <= 0;
+    posibility_reg[50][10] <= 0;
+    posibility_reg[50][11] <= 0;
+    posibility_reg[50][12] <= 0;
+    posibility_reg[50][13] <= 0;
+    posibility_reg[50][14] <= 0;
+    posibility_reg[50][15] <= 0;
+    
+    posibility_reg[51][0] <= 0;
+    posibility_reg[51][1] <= 0;
+    posibility_reg[51][2] <= 0;
+    posibility_reg[51][3] <= 0;
+    posibility_reg[51][4] <= 0;
+    posibility_reg[51][5] <= 0;
+    posibility_reg[51][6] <= 0;
+    posibility_reg[51][7] <= 0;
+    posibility_reg[51][8] <= 0;
+    posibility_reg[51][9] <= 0;
+    posibility_reg[51][10] <= 0;
+    posibility_reg[51][11] <= 0;
+    posibility_reg[51][12] <= 0;
+    posibility_reg[51][13] <= 0;
+    posibility_reg[51][14] <= 0;
+    posibility_reg[51][15] <= 0;
+    
+    posibility_reg[52][0] <= 0;
+    posibility_reg[52][1] <= 0;
+    posibility_reg[52][2] <= 0;
+    posibility_reg[52][3] <= 0;
+    posibility_reg[52][4] <= 0;
+    posibility_reg[52][5] <= 0;
+    posibility_reg[52][6] <= 0;
+    posibility_reg[52][7] <= 0;
+    posibility_reg[52][8] <= 0;
+    posibility_reg[52][9] <= 0;
+    posibility_reg[52][10] <= 0;
+    posibility_reg[52][11] <= 0;
+    posibility_reg[52][12] <= 0;
+    posibility_reg[52][13] <= 0;
+    posibility_reg[52][14] <= 0;
+    posibility_reg[52][15] <= 0;
+    
+    
+posibility_reg[53][0] <= 0;
+posibility_reg[53][1] <= 0;
+posibility_reg[53][2] <= 0;
+posibility_reg[53][3] <= 0;
+posibility_reg[53][4] <= 0;
+posibility_reg[53][5] <= 0;
+posibility_reg[53][6] <= 0;
+posibility_reg[53][7] <= 0;
+posibility_reg[53][8] <= 0;
+posibility_reg[53][9] <= 0;
+posibility_reg[53][10] <= 0;
+posibility_reg[53][11] <= 0;
+posibility_reg[53][12] <= 0;
+posibility_reg[53][13] <= 0;
+posibility_reg[53][14] <= 0;
+posibility_reg[53][15] <= 0;
+
+posibility_reg[54][0] <= 0;
+posibility_reg[54][1] <= 0;
+posibility_reg[54][2] <= 0;
+posibility_reg[54][3] <= 0;
+posibility_reg[54][4] <= 0;
+posibility_reg[54][5] <= 0;
+posibility_reg[54][6] <= 0;
+posibility_reg[54][7] <= 0;
+posibility_reg[54][8] <= 0;
+posibility_reg[54][9] <= 0;
+posibility_reg[54][10] <= 0;
+posibility_reg[54][11] <= 0;
+posibility_reg[54][12] <= 0;
+posibility_reg[54][13] <= 0;
+posibility_reg[54][14] <= 0;
+posibility_reg[54][15] <= 0;
+
+posibility_reg[55][0] <= 0;
+posibility_reg[55][1] <= 0;
+posibility_reg[55][2] <= 0;
+posibility_reg[55][3] <= 0;
+posibility_reg[55][4] <= 0;
+posibility_reg[55][5] <= 0;
+posibility_reg[55][6] <= 0;
+posibility_reg[55][7] <= 0;
+posibility_reg[55][8] <= 0;
+posibility_reg[55][9] <= 0;
+posibility_reg[55][10] <= 0;
+posibility_reg[55][11] <= 0;
+posibility_reg[55][12] <= 0;
+posibility_reg[55][13] <= 0;
+posibility_reg[55][14] <= 0;
+posibility_reg[55][15] <= 0;
+
+posibility_reg[56][0] <= 0;
+posibility_reg[56][1] <= 0;
+posibility_reg[56][2] <= 0;
+posibility_reg[56][3] <= 0;
+posibility_reg[56][4] <= 0;
+posibility_reg[56][5] <= 0;
+posibility_reg[56][6] <= 0;
+posibility_reg[56][7] <= 0;
+posibility_reg[56][8] <= 0;
+posibility_reg[56][9] <= 0;
+posibility_reg[56][10] <= 0;
+posibility_reg[56][11] <= 0;
+posibility_reg[56][12] <= 0;
+posibility_reg[56][13] <= 0;
+posibility_reg[56][14] <= 0;
+posibility_reg[56][15] <= 0;
+
+posibility_reg[57][0] <= 0;
+posibility_reg[57][1] <= 0;
+posibility_reg[57][2] <= 0;
+posibility_reg[57][3] <= 0;
+posibility_reg[57][4] <= 0;
+posibility_reg[57][5] <= 0;
+posibility_reg[57][6] <= 0;
+posibility_reg[57][7] <= 0;
+posibility_reg[57][8] <= 0;
+posibility_reg[57][9] <= 0;
+posibility_reg[57][10] <= 0;
+posibility_reg[57][11] <= 0;
+posibility_reg[57][12] <= 0;
+posibility_reg[57][13] <= 0;
+posibility_reg[57][14] <= 0;
+posibility_reg[57][15] <= 0;
+
+posibility_reg[58][0] <= 0;
+posibility_reg[58][1] <= 0;
+posibility_reg[58][2] <= 0;
+posibility_reg[58][3] <= 0;
+posibility_reg[58][4] <= 0;
+posibility_reg[58][5] <= 0;
+posibility_reg[58][6] <= 0;
+posibility_reg[58][7] <= 0;
+posibility_reg[58][8] <= 0;
+posibility_reg[58][9] <= 0;
+posibility_reg[58][10] <= 0;
+posibility_reg[58][11] <= 0;
+posibility_reg[58][12] <= 0;
+posibility_reg[58][13] <= 0;
+posibility_reg[58][14] <= 0;
+posibility_reg[58][15] <= 0;
+
+posibility_reg[59][0] <= 0;
+posibility_reg[59][1] <= 0;
+posibility_reg[59][2] <= 0;
+posibility_reg[59][3] <= 0;
+posibility_reg[59][4] <= 0;
+posibility_reg[59][5] <= 0;
+posibility_reg[59][6] <= 0;
+posibility_reg[59][7] <= 0;
+posibility_reg[59][8] <= 0;
+posibility_reg[59][9] <= 0;
+posibility_reg[59][10] <= 0;
+posibility_reg[59][11] <= 0;
+posibility_reg[59][12] <= 0;
+posibility_reg[59][13] <= 0;
+posibility_reg[59][14] <= 0;
+posibility_reg[59][15] <= 0;
+
+posibility_reg[60][0] <= 0;
+posibility_reg[60][1] <= 0;
+posibility_reg[60][2] <= 0;
+posibility_reg[60][3] <= 0;
+posibility_reg[60][4] <= 0;
+posibility_reg[60][5] <= 0;
+posibility_reg[60][6] <= 0;
+posibility_reg[60][7] <= 0;
+posibility_reg[60][8] <= 0;
+posibility_reg[60][9] <= 0;
+posibility_reg[60][10] <= 0;
+posibility_reg[60][11] <= 0;
+posibility_reg[60][12] <= 0;
+posibility_reg[60][13] <= 0;
+posibility_reg[60][14] <= 0;
+posibility_reg[60][15] <= 0;
+
+posibility_reg[61][0] <= 0;
+posibility_reg[61][1] <= 0;
+posibility_reg[61][2] <= 0;
+posibility_reg[61][3] <= 0;
+posibility_reg[61][4] <= 0;
+posibility_reg[61][5] <= 0;
+posibility_reg[61][6] <= 0;
+posibility_reg[61][7] <= 0;
+posibility_reg[61][8] <= 0;
+posibility_reg[61][9] <= 0;
+posibility_reg[61][10] <= 0;
+posibility_reg[61][11] <= 0;
+posibility_reg[61][12] <= 0;
+posibility_reg[61][13] <= 0;
+posibility_reg[61][14] <= 0;
+posibility_reg[61][15] <= 0;
+
+posibility_reg[62][0] <= 0;
+posibility_reg[62][1] <= 0;
+posibility_reg[62][2] <= 0;
+posibility_reg[62][3] <= 0;
+posibility_reg[62][4] <= 0;
+posibility_reg[62][5] <= 0;
+posibility_reg[62][6] <= 0;
+posibility_reg[62][7] <= 0;
+posibility_reg[62][8] <= 0;
+posibility_reg[62][9] <= 0;
+posibility_reg[62][10] <= 0;
+posibility_reg[62][11] <= 0;
+posibility_reg[62][12] <= 0;
+posibility_reg[62][13] <= 0;
+posibility_reg[62][14] <= 0;
+posibility_reg[62][15] <= 0;
+
+posibility_reg[63][0] <= 0;
+posibility_reg[63][1] <= 0;
+posibility_reg[63][2] <= 0;
+posibility_reg[63][3] <= 0;
+posibility_reg[63][4] <= 0;
+posibility_reg[63][5] <= 0;
+posibility_reg[63][6] <= 0;
+posibility_reg[63][7] <= 0;
+posibility_reg[63][8] <= 0;
+posibility_reg[63][9] <= 0;
+posibility_reg[63][10] <= 0;
+posibility_reg[63][11] <= 0;
+posibility_reg[63][12] <= 0;
+posibility_reg[63][13] <= 0;
+posibility_reg[63][14] <= 0;
+posibility_reg[63][15] <= 0;
+
+posibility_reg[64][0] <= 0;
+posibility_reg[64][1] <= 0;
+posibility_reg[64][2] <= 0;
+posibility_reg[64][3] <= 0;
+posibility_reg[64][4] <= 0;
+posibility_reg[64][5] <= 0;
+posibility_reg[64][6] <= 0;
+posibility_reg[64][7] <= 0;
+posibility_reg[64][8] <= 0;
+posibility_reg[64][9] <= 0;
+posibility_reg[64][10] <= 0;
+posibility_reg[64][11] <= 0;
+posibility_reg[64][12] <= 0;
+posibility_reg[64][13] <= 0;
+posibility_reg[64][14] <= 0;
+posibility_reg[64][15] <= 0;
+
+posibility_reg[65][0] <= 0;
+posibility_reg[65][1] <= 0;
+posibility_reg[65][2] <= 0;
+posibility_reg[65][3] <= 0;
+posibility_reg[65][4] <= 0;
+posibility_reg[65][5] <= 0;
+posibility_reg[65][6] <= 0;
+posibility_reg[65][7] <= 0;
+posibility_reg[65][8] <= 0;
+posibility_reg[65][9] <= 0;
+posibility_reg[65][10] <= 0;
+posibility_reg[65][11] <= 0;
+posibility_reg[65][12] <= 0;
+posibility_reg[65][13] <= 0;
+posibility_reg[65][14] <= 0;
+posibility_reg[65][15] <= 0;
+
+posibility_reg[66][0] <= 0;
+posibility_reg[66][1] <= 0;
+posibility_reg[66][2] <= 0;
+posibility_reg[66][3] <= 0;
+posibility_reg[66][4] <= 0;
+posibility_reg[66][5] <= 0;
+posibility_reg[66][6] <= 0;
+posibility_reg[66][7] <= 0;
+posibility_reg[66][8] <= 0;
+posibility_reg[66][9] <= 0;
+posibility_reg[66][10] <= 0;
+posibility_reg[66][11] <= 0;
+posibility_reg[66][12] <= 0;
+posibility_reg[66][13] <= 0;
+posibility_reg[66][14] <= 0;
+posibility_reg[66][15] <= 0;
+
+posibility_reg[67][0] <= 0;
+posibility_reg[67][1] <= 0;
+posibility_reg[67][2] <= 0;
+posibility_reg[67][3] <= 0;
+posibility_reg[67][4] <= 0;
+posibility_reg[67][5] <= 0;
+posibility_reg[67][6] <= 0;
+posibility_reg[67][7] <= 0;
+posibility_reg[67][8] <= 0;
+posibility_reg[67][9] <= 0;
+posibility_reg[67][10] <= 0;
+posibility_reg[67][11] <= 0;
+posibility_reg[67][12] <= 0;
+posibility_reg[67][13] <= 0;
+posibility_reg[67][14] <= 0;
+posibility_reg[67][15] <= 0;
+
+posibility_reg[68][0] <= 0;
+posibility_reg[68][1] <= 0;
+posibility_reg[68][2] <= 0;
+posibility_reg[68][3] <= 0;
+posibility_reg[68][4] <= 0;
+posibility_reg[68][5] <= 0;
+posibility_reg[68][6] <= 0;
+posibility_reg[68][7] <= 0;
+posibility_reg[68][8] <= 0;
+posibility_reg[68][9] <= 0;
+posibility_reg[68][10] <= 0;
+posibility_reg[68][11] <= 0;
+posibility_reg[68][12] <= 0;
+posibility_reg[68][13] <= 0;
+posibility_reg[68][14] <= 0;
+posibility_reg[68][15] <= 0;
+
+posibility_reg[69][0] <= 0;
+posibility_reg[69][1] <= 0;
+posibility_reg[69][2] <= 0;
+posibility_reg[69][3] <= 0;
+posibility_reg[69][4] <= 0;
+posibility_reg[69][5] <= 0;
+posibility_reg[69][6] <= 0;
+posibility_reg[69][7] <= 0;
+posibility_reg[69][8] <= 0;
+posibility_reg[69][9] <= 0;
+posibility_reg[69][10] <= 0;
+posibility_reg[69][11] <= 0;
+posibility_reg[69][12] <= 0;
+posibility_reg[69][13] <= 0;
+posibility_reg[69][14] <= 0;
+posibility_reg[69][15] <= 0;
+
+posibility_reg[70][0] <= 0;
+posibility_reg[70][1] <= 0;
+posibility_reg[70][2] <= 0;
+posibility_reg[70][3] <= 0;
+posibility_reg[70][4] <= 0;
+posibility_reg[70][5] <= 0;
+posibility_reg[70][6] <= 0;
+posibility_reg[70][7] <= 0;
+posibility_reg[70][8] <= 0;
+posibility_reg[70][9] <= 0;
+posibility_reg[70][10] <= 0;
+posibility_reg[70][11] <= 0;
+posibility_reg[70][12] <= 0;
+posibility_reg[70][13] <= 0;
+posibility_reg[70][14] <= 0;
+posibility_reg[70][15] <= 0;
+
+posibility_reg[71][0] <= 0;
+posibility_reg[71][1] <= 0;
+posibility_reg[71][2] <= 0;
+posibility_reg[71][3] <= 0;
+posibility_reg[71][4] <= 0;
+posibility_reg[71][5] <= 0;
+posibility_reg[71][6] <= 0;
+posibility_reg[71][7] <= 0;
+posibility_reg[71][8] <= 0;
+posibility_reg[71][9] <= 0;
+posibility_reg[71][10] <= 0;
+posibility_reg[71][11] <= 0;
+posibility_reg[71][12] <= 0;
+posibility_reg[71][13] <= 0;
+posibility_reg[71][14] <= 0;
+posibility_reg[71][15] <= 0;
+
+posibility_reg[72][0] <= 0;
+posibility_reg[72][1] <= 0;
+posibility_reg[72][2] <= 0;
+posibility_reg[72][3] <= 0;
+posibility_reg[72][4] <= 0;
+posibility_reg[72][5] <= 0;
+posibility_reg[72][6] <= 0;
+posibility_reg[72][7] <= 0;
+posibility_reg[72][8] <= 0;
+posibility_reg[72][9] <= 0;
+posibility_reg[72][10] <= 0;
+posibility_reg[72][11] <= 0;
+posibility_reg[72][12] <= 0;
+posibility_reg[72][13] <= 0;
+posibility_reg[72][14] <= 0;
+posibility_reg[72][15] <= 0;
+
+posibility_reg[73][0] <= 0;
+posibility_reg[73][1] <= 0;
+posibility_reg[73][2] <= 0;
+posibility_reg[73][3] <= 0;
+posibility_reg[73][4] <= 0;
+posibility_reg[73][5] <= 0;
+posibility_reg[73][6] <= 0;
+posibility_reg[73][7] <= 0;
+posibility_reg[73][8] <= 0;
+posibility_reg[73][9] <= 0;
+posibility_reg[73][10] <= 0;
+posibility_reg[73][11] <= 0;
+posibility_reg[73][12] <= 0;
+posibility_reg[73][13] <= 0;
+posibility_reg[73][14] <= 0;
+posibility_reg[73][15] <= 0;
+
+posibility_reg[74][0] <= 0;
+posibility_reg[74][1] <= 0;
+posibility_reg[74][2] <= 0;
+posibility_reg[74][3] <= 0;
+posibility_reg[74][4] <= 0;
+posibility_reg[74][5] <= 0;
+posibility_reg[74][6] <= 0;
+posibility_reg[74][7] <= 0;
+posibility_reg[74][8] <= 0;
+posibility_reg[74][9] <= 0;
+posibility_reg[74][10] <= 0;
+posibility_reg[74][11] <= 0;
+posibility_reg[74][12] <= 0;
+posibility_reg[74][13] <= 0;
+posibility_reg[74][14] <= 0;
+posibility_reg[74][15] <= 0;
+
+posibility_reg[75][0] <= 0;
+posibility_reg[75][1] <= 0;
+posibility_reg[75][2] <= 0;
+posibility_reg[75][3] <= 0;
+posibility_reg[75][4] <= 0;
+posibility_reg[75][5] <= 0;
+posibility_reg[75][6] <= 0;
+posibility_reg[75][7] <= 0;
+posibility_reg[75][8] <= 0;
+posibility_reg[75][9] <= 0;
+posibility_reg[75][10] <= 0;
+posibility_reg[75][11] <= 0;
+posibility_reg[75][12] <= 0;
+posibility_reg[75][13] <= 0;
+posibility_reg[75][14] <= 0;
+posibility_reg[75][15] <= 0;
+
+posibility_reg[76][0] <= 0;
+posibility_reg[76][1] <= 0;
+posibility_reg[76][2] <= 0;
+posibility_reg[76][3] <= 0;
+posibility_reg[76][4] <= 0;
+posibility_reg[76][5] <= 0;
+posibility_reg[76][6] <= 0;
+posibility_reg[76][7] <= 0;
+posibility_reg[76][8] <= 0;
+posibility_reg[76][9] <= 0;
+posibility_reg[76][10] <= 0;
+posibility_reg[76][11] <= 0;
+posibility_reg[76][12] <= 0;
+posibility_reg[76][13] <= 0;
+posibility_reg[76][14] <= 0;
+posibility_reg[76][15] <= 0;
+
+posibility_reg[77][0] <= 0;
+posibility_reg[77][1] <= 0;
+posibility_reg[77][2] <= 0;
+posibility_reg[77][3] <= 0;
+posibility_reg[77][4] <= 0;
+posibility_reg[77][5] <= 0;
+posibility_reg[77][6] <= 0;
+posibility_reg[77][7] <= 0;
+posibility_reg[77][8] <= 0;
+posibility_reg[77][9] <= 0;
+posibility_reg[77][10] <= 0;
+posibility_reg[77][11] <= 0;
+posibility_reg[77][12] <= 0;
+posibility_reg[77][13] <= 0;
+posibility_reg[77][14] <= 0;
+posibility_reg[77][15] <= 0;
+
+posibility_reg[78][0] <= 0;
+posibility_reg[78][1] <= 0;
+posibility_reg[78][2] <= 0;
+posibility_reg[78][3] <= 0;
+posibility_reg[78][4] <= 0;
+posibility_reg[78][5] <= 0;
+posibility_reg[78][6] <= 0;
+posibility_reg[78][7] <= 0;
+posibility_reg[78][8] <= 0;
+posibility_reg[78][9] <= 0;
+posibility_reg[78][10] <= 0;
+posibility_reg[78][11] <= 0;
+posibility_reg[78][12] <= 0;
+posibility_reg[78][13] <= 0;
+posibility_reg[78][14] <= 0;
+posibility_reg[78][15] <= 0;
+
+posibility_reg[79][0] <= 0;
+posibility_reg[79][1] <= 0;
+posibility_reg[79][2] <= 0;
+posibility_reg[79][3] <= 0;
+posibility_reg[79][4] <= 0;
+posibility_reg[79][5] <= 0;
+posibility_reg[79][6] <= 0;
+posibility_reg[79][7] <= 0;
+posibility_reg[79][8] <= 0;
+posibility_reg[79][9] <= 0;
+posibility_reg[79][10] <= 0;
+posibility_reg[79][11] <= 0;
+posibility_reg[79][12] <= 0;
+posibility_reg[79][13] <= 0;
+posibility_reg[79][14] <= 0;
+posibility_reg[79][15] <= 0;
+
+posibility_reg[80][0] <= 0;
+posibility_reg[80][1] <= 0;
+posibility_reg[80][2] <= 0;
+posibility_reg[80][3] <= 0;
+posibility_reg[80][4] <= 0;
+posibility_reg[80][5] <= 0;
+posibility_reg[80][6] <= 0;
+posibility_reg[80][7] <= 0;
+posibility_reg[80][8] <= 0;
+posibility_reg[80][9] <= 0;
+posibility_reg[80][10] <= 0;
+posibility_reg[80][11] <= 0;
+posibility_reg[80][12] <= 0;
+posibility_reg[80][13] <= 0;
+posibility_reg[80][14] <= 0;
+posibility_reg[80][15] <= 0;
+
+posibility_reg[81][0] <= 0;
+posibility_reg[81][1] <= 0;
+posibility_reg[81][2] <= 0;
+posibility_reg[81][3] <= 0;
+posibility_reg[81][4] <= 0;
+posibility_reg[81][5] <= 0;
+posibility_reg[81][6] <= 0;
+posibility_reg[81][7] <= 0;
+posibility_reg[81][8] <= 0;
+posibility_reg[81][9] <= 0;
+posibility_reg[81][10] <= 0;
+posibility_reg[81][11] <= 0;
+posibility_reg[81][12] <= 0;
+posibility_reg[81][13] <= 0;
+posibility_reg[81][14] <= 0;
+posibility_reg[81][15] <= 0;
+
+posibility_reg[82][0] <= 0;
+posibility_reg[82][1] <= 0;
+posibility_reg[82][2] <= 0;
+posibility_reg[82][3] <= 0;
+posibility_reg[82][4] <= 0;
+posibility_reg[82][5] <= 0;
+posibility_reg[82][6] <= 0;
+posibility_reg[82][7] <= 0;
+posibility_reg[82][8] <= 0;
+posibility_reg[82][9] <= 0;
+posibility_reg[82][10] <= 0;
+posibility_reg[82][11] <= 0;
+posibility_reg[82][12] <= 0;
+posibility_reg[82][13] <= 0;
+posibility_reg[82][14] <= 0;
+posibility_reg[82][15] <= 0;
+
+posibility_reg[83][0] <= 0;
+posibility_reg[83][1] <= 0;
+posibility_reg[83][2] <= 0;
+posibility_reg[83][3] <= 0;
+posibility_reg[83][4] <= 0;
+posibility_reg[83][5] <= 0;
+posibility_reg[83][6] <= 0;
+posibility_reg[83][7] <= 0;
+posibility_reg[83][8] <= 0;
+posibility_reg[83][9] <= 0;
+posibility_reg[83][10] <= 0;
+posibility_reg[83][11] <= 0;
+posibility_reg[83][12] <= 0;
+posibility_reg[83][13] <= 0;
+posibility_reg[83][14] <= 0;
+posibility_reg[83][15] <= 0;
+
+posibility_reg[84][0] <= 0;
+posibility_reg[84][1] <= 0;
+posibility_reg[84][2] <= 0;
+posibility_reg[84][3] <= 0;
+posibility_reg[84][4] <= 0;
+posibility_reg[84][5] <= 0;
+posibility_reg[84][6] <= 0;
+posibility_reg[84][7] <= 0;
+posibility_reg[84][8] <= 0;
+posibility_reg[84][9] <= 0;
+posibility_reg[84][10] <= 0;
+posibility_reg[84][11] <= 0;
+posibility_reg[84][12] <= 0;
+posibility_reg[84][13] <= 0;
+posibility_reg[84][14] <= 0;
+posibility_reg[84][15] <= 0;
+
+posibility_reg[85][0] <= 0;
+posibility_reg[85][1] <= 0;
+posibility_reg[85][2] <= 0;
+posibility_reg[85][3] <= 0;
+posibility_reg[85][4] <= 0;
+posibility_reg[85][5] <= 0;
+posibility_reg[85][6] <= 0;
+posibility_reg[85][7] <= 0;
+posibility_reg[85][8] <= 0;
+posibility_reg[85][9] <= 0;
+posibility_reg[85][10] <= 0;
+posibility_reg[85][11] <= 0;
+posibility_reg[85][12] <= 0;
+posibility_reg[85][13] <= 0;
+posibility_reg[85][14] <= 0;
+posibility_reg[85][15] <= 0;
+
+posibility_reg[86][0] <= 0;
+posibility_reg[86][1] <= 0;
+posibility_reg[86][2] <= 0;
+posibility_reg[86][3] <= 0;
+posibility_reg[86][4] <= 0;
+posibility_reg[86][5] <= 0;
+posibility_reg[86][6] <= 0;
+posibility_reg[86][7] <= 0;
+posibility_reg[86][8] <= 0;
+posibility_reg[86][9] <= 0;
+posibility_reg[86][10] <= 0;
+posibility_reg[86][11] <= 0;
+posibility_reg[86][12] <= 0;
+posibility_reg[86][13] <= 0;
+posibility_reg[86][14] <= 0;
+posibility_reg[86][15] <= 0;
+
+posibility_reg[87][0] <= 0;
+posibility_reg[87][1] <= 0;
+posibility_reg[87][2] <= 0;
+posibility_reg[87][3] <= 0;
+posibility_reg[87][4] <= 0;
+posibility_reg[87][5] <= 0;
+posibility_reg[87][6] <= 0;
+posibility_reg[87][7] <= 0;
+posibility_reg[87][8] <= 0;
+posibility_reg[87][9] <= 0;
+posibility_reg[87][10] <= 0;
+posibility_reg[87][11] <= 0;
+posibility_reg[87][12] <= 0;
+posibility_reg[87][13] <= 0;
+posibility_reg[87][14] <= 0;
+posibility_reg[87][15] <= 0;
+
+posibility_reg[88][0] <= 0;
+posibility_reg[88][1] <= 0;
+posibility_reg[88][2] <= 0;
+posibility_reg[88][3] <= 0;
+posibility_reg[88][4] <= 0;
+posibility_reg[88][5] <= 0;
+posibility_reg[88][6] <= 0;
+posibility_reg[88][7] <= 0;
+posibility_reg[88][8] <= 0;
+posibility_reg[88][9] <= 0;
+posibility_reg[88][10] <= 0;
+posibility_reg[88][11] <= 0;
+posibility_reg[88][12] <= 0;
+posibility_reg[88][13] <= 0;
+posibility_reg[88][14] <= 0;
+posibility_reg[88][15] <= 0;
+
+posibility_reg[89][0] <= 0;
+posibility_reg[89][1] <= 0;
+posibility_reg[89][2] <= 0;
+posibility_reg[89][3] <= 0;
+posibility_reg[89][4] <= 0;
+posibility_reg[89][5] <= 0;
+posibility_reg[89][6] <= 0;
+posibility_reg[89][7] <= 0;
+posibility_reg[89][8] <= 0;
+posibility_reg[89][9] <= 0;
+posibility_reg[89][10] <= 0;
+posibility_reg[89][11] <= 0;
+posibility_reg[89][12] <= 0;
+posibility_reg[89][13] <= 0;
+posibility_reg[89][14] <= 0;
+posibility_reg[89][15] <= 0;
+
+posibility_reg[90][0] <= 0;
+posibility_reg[90][1] <= 0;
+posibility_reg[90][2] <= 0;
+posibility_reg[90][3] <= 0;
+posibility_reg[90][4] <= 0;
+posibility_reg[90][5] <= 0;
+posibility_reg[90][6] <= 0;
+posibility_reg[90][7] <= 0;
+posibility_reg[90][8] <= 0;
+posibility_reg[90][9] <= 0;
+posibility_reg[90][10] <= 0;
+posibility_reg[90][11] <= 0;
+posibility_reg[90][12] <= 0;
+posibility_reg[90][13] <= 0;
+posibility_reg[90][14] <= 0;
+posibility_reg[90][15] <= 0;
+
+posibility_reg[91][0] <= 0;
+posibility_reg[91][1] <= 0;
+posibility_reg[91][2] <= 0;
+posibility_reg[91][3] <= 0;
+posibility_reg[91][4] <= 0;
+posibility_reg[91][5] <= 0;
+posibility_reg[91][6] <= 0;
+posibility_reg[91][7] <= 0;
+posibility_reg[91][8] <= 0;
+posibility_reg[91][9] <= 0;
+posibility_reg[91][10] <= 0;
+posibility_reg[91][11] <= 0;
+posibility_reg[91][12] <= 0;
+posibility_reg[91][13] <= 0;
+posibility_reg[91][14] <= 0;
+posibility_reg[91][15] <= 0;
+
+posibility_reg[92][0] <= 0;
+posibility_reg[92][1] <= 0;
+posibility_reg[92][2] <= 0;
+posibility_reg[92][3] <= 0;
+posibility_reg[92][4] <= 0;
+posibility_reg[92][5] <= 0;
+posibility_reg[92][6] <= 0;
+posibility_reg[92][7] <= 0;
+posibility_reg[92][8] <= 0;
+posibility_reg[92][9] <= 0;
+posibility_reg[92][10] <= 0;
+posibility_reg[92][11] <= 0;
+posibility_reg[92][12] <= 0;
+posibility_reg[92][13] <= 0;
+posibility_reg[92][14] <= 0;
+posibility_reg[92][15] <= 0;
+
+posibility_reg[93][0] <= 0;
+posibility_reg[93][1] <= 0;
+posibility_reg[93][2] <= 0;
+posibility_reg[93][3] <= 0;
+posibility_reg[93][4] <= 0;
+posibility_reg[93][5] <= 0;
+posibility_reg[93][6] <= 0;
+posibility_reg[93][7] <= 0;
+posibility_reg[93][8] <= 0;
+posibility_reg[93][9] <= 0;
+posibility_reg[93][10] <= 0;
+posibility_reg[93][11] <= 0;
+posibility_reg[93][12] <= 0;
+posibility_reg[93][13] <= 0;
+posibility_reg[93][14] <= 0;
+posibility_reg[93][15] <= 0;
+
+posibility_reg[94][0] <= 0;
+posibility_reg[94][1] <= 0;
+posibility_reg[94][2] <= 0;
+posibility_reg[94][3] <= 0;
+posibility_reg[94][4] <= 0;
+posibility_reg[94][5] <= 0;
+posibility_reg[94][6] <= 0;
+posibility_reg[94][7] <= 0;
+posibility_reg[94][8] <= 0;
+posibility_reg[94][9] <= 0;
+posibility_reg[94][10] <= 0;
+posibility_reg[94][11] <= 0;
+posibility_reg[94][12] <= 0;
+posibility_reg[94][13] <= 0;
+posibility_reg[94][14] <= 0;
+posibility_reg[94][15] <= 0;
+
+posibility_reg[95][0] <= 0;
+posibility_reg[95][1] <= 0;
+posibility_reg[95][2] <= 0;
+posibility_reg[95][3] <= 0;
+posibility_reg[95][4] <= 0;
+posibility_reg[95][5] <= 0;
+posibility_reg[95][6] <= 0;
+posibility_reg[95][7] <= 0;
+posibility_reg[95][8] <= 0;
+posibility_reg[95][9] <= 0;
+posibility_reg[95][10] <= 0;
+posibility_reg[95][11] <= 0;
+posibility_reg[95][12] <= 0;
+posibility_reg[95][13] <= 0;
+posibility_reg[95][14] <= 0;
+posibility_reg[95][15] <= 0;
+
+posibility_reg[96][0] <= 0;
+posibility_reg[96][1] <= 0;
+posibility_reg[96][2] <= 0;
+posibility_reg[96][3] <= 0;
+posibility_reg[96][4] <= 0;
+posibility_reg[96][5] <= 0;
+posibility_reg[96][6] <= 0;
+posibility_reg[96][7] <= 0;
+posibility_reg[96][8] <= 0;
+posibility_reg[96][9] <= 0;
+posibility_reg[96][10] <= 0;
+posibility_reg[96][11] <= 0;
+posibility_reg[96][12] <= 0;
+posibility_reg[96][13] <= 0;
+posibility_reg[96][14] <= 0;
+posibility_reg[96][15] <= 0;
+
+posibility_reg[97][0] <= 0;
+posibility_reg[97][1] <= 0;
+posibility_reg[97][2] <= 0;
+posibility_reg[97][3] <= 0;
+posibility_reg[97][4] <= 0;
+posibility_reg[97][5] <= 0;
+posibility_reg[97][6] <= 0;
+posibility_reg[97][7] <= 0;
+posibility_reg[97][8] <= 0;
+posibility_reg[97][9] <= 0;
+posibility_reg[97][10] <= 0;
+posibility_reg[97][11] <= 0;
+posibility_reg[97][12] <= 0;
+posibility_reg[97][13] <= 0;
+posibility_reg[97][14] <= 0;
+posibility_reg[97][15] <= 0;
+
+posibility_reg[98][0] <= 0;
+posibility_reg[98][1] <= 0;
+posibility_reg[98][2] <= 0;
+posibility_reg[98][3] <= 0;
+posibility_reg[98][4] <= 0;
+posibility_reg[98][5] <= 0;
+posibility_reg[98][6] <= 0;
+posibility_reg[98][7] <= 0;
+posibility_reg[98][8] <= 0;
+posibility_reg[98][9] <= 0;
+posibility_reg[98][10] <= 0;
+posibility_reg[98][11] <= 0;
+posibility_reg[98][12] <= 0;
+posibility_reg[98][13] <= 0;
+posibility_reg[98][14] <= 0;
+posibility_reg[98][15] <= 0;
+
+posibility_reg[99][0] <= 0;
+posibility_reg[99][1] <= 0;
+posibility_reg[99][2] <= 0;
+posibility_reg[99][3] <= 0;
+posibility_reg[99][4] <= 0;
+posibility_reg[99][5] <= 0;
+posibility_reg[99][6] <= 0;
+posibility_reg[99][7] <= 0;
+posibility_reg[99][8] <= 0;
+posibility_reg[99][9] <= 0;
+posibility_reg[99][10] <= 0;
+posibility_reg[99][11] <= 0;
+posibility_reg[99][12] <= 0;
+posibility_reg[99][13] <= 0;
+posibility_reg[99][14] <= 0;
+posibility_reg[99][15] <= 0;
+
+posibility_reg[100][0] <= 0;
+posibility_reg[100][1] <= 0;
+posibility_reg[100][2] <= 0;
+posibility_reg[100][3] <= 0;
+posibility_reg[100][4] <= 0;
+posibility_reg[100][5] <= 0;
+posibility_reg[100][6] <= 0;
+posibility_reg[100][7] <= 0;
+posibility_reg[100][8] <= 0;
+posibility_reg[100][9] <= 0;
+posibility_reg[100][10] <= 0;
+posibility_reg[100][11] <= 0;
+posibility_reg[100][12] <= 0;
+posibility_reg[100][13] <= 0;
+posibility_reg[100][14] <= 0;
+posibility_reg[100][15] <= 0;
+
+posibility_reg[101][0] <= 0;
+posibility_reg[101][1] <= 0;
+posibility_reg[101][2] <= 0;
+posibility_reg[101][3] <= 0;
+posibility_reg[101][4] <= 0;
+posibility_reg[101][5] <= 0;
+posibility_reg[101][6] <= 0;
+posibility_reg[101][7] <= 0;
+posibility_reg[101][8] <= 0;
+posibility_reg[101][9] <= 0;
+posibility_reg[101][10] <= 0;
+posibility_reg[101][11] <= 0;
+posibility_reg[101][12] <= 0;
+posibility_reg[101][13] <= 0;
+posibility_reg[101][14] <= 0;
+posibility_reg[101][15] <= 0;
+
+posibility_reg[102][0] <= 0;
+posibility_reg[102][1] <= 0;
+posibility_reg[102][2] <= 0;
+posibility_reg[102][3] <= 0;
+posibility_reg[102][4] <= 0;
+posibility_reg[102][5] <= 0;
+posibility_reg[102][6] <= 0;
+posibility_reg[102][7] <= 0;
+posibility_reg[102][8] <= 0;
+posibility_reg[102][9] <= 0;
+posibility_reg[102][10] <= 0;
+posibility_reg[102][11] <= 0;
+posibility_reg[102][12] <= 0;
+posibility_reg[102][13] <= 0;
+posibility_reg[102][14] <= 0;
+posibility_reg[102][15] <= 0;
+
+posibility_reg[103][0] <= 0;
+posibility_reg[103][1] <= 0;
+posibility_reg[103][2] <= 0;
+posibility_reg[103][3] <= 0;
+posibility_reg[103][4] <= 0;
+posibility_reg[103][5] <= 0;
+posibility_reg[103][6] <= 0;
+posibility_reg[103][7] <= 0;
+posibility_reg[103][8] <= 0;
+posibility_reg[103][9] <= 0;
+posibility_reg[103][10] <= 0;
+posibility_reg[103][11] <= 0;
+posibility_reg[103][12] <= 0;
+posibility_reg[103][13] <= 0;
+posibility_reg[103][14] <= 0;
+posibility_reg[103][15] <= 0;
+
+posibility_reg[104][0] <= 0;
+posibility_reg[104][1] <= 0;
+posibility_reg[104][2] <= 0;
+posibility_reg[104][3] <= 0;
+posibility_reg[104][4] <= 0;
+posibility_reg[104][5] <= 0;
+posibility_reg[104][6] <= 0;
+posibility_reg[104][7] <= 0;
+posibility_reg[104][8] <= 0;
+posibility_reg[104][9] <= 0;
+posibility_reg[104][10] <= 0;
+posibility_reg[104][11] <= 0;
+posibility_reg[104][12] <= 0;
+posibility_reg[104][13] <= 0;
+posibility_reg[104][14] <= 0;
+posibility_reg[104][15] <= 0;
+
+posibility_reg[105][0] <= 0;
+posibility_reg[105][1] <= 0;
+posibility_reg[105][2] <= 0;
+posibility_reg[105][3] <= 0;
+posibility_reg[105][4] <= 0;
+posibility_reg[105][5] <= 0;
+posibility_reg[105][6] <= 0;
+posibility_reg[105][7] <= 0;
+posibility_reg[105][8] <= 0;
+posibility_reg[105][9] <= 0;
+posibility_reg[105][10] <= 0;
+posibility_reg[105][11] <= 0;
+posibility_reg[105][12] <= 0;
+posibility_reg[105][13] <= 0;
+posibility_reg[105][14] <= 0;
+posibility_reg[105][15] <= 0;
+
+posibility_reg[106][0] <= 0;
+posibility_reg[106][1] <= 0;
+posibility_reg[106][2] <= 0;
+posibility_reg[106][3] <= 0;
+posibility_reg[106][4] <= 0;
+posibility_reg[106][5] <= 0;
+posibility_reg[106][6] <= 0;
+posibility_reg[106][7] <= 0;
+posibility_reg[106][8] <= 0;
+posibility_reg[106][9] <= 0;
+posibility_reg[106][10] <= 0;
+posibility_reg[106][11] <= 0;
+posibility_reg[106][12] <= 0;
+posibility_reg[106][13] <= 0;
+posibility_reg[106][14] <= 0;
+posibility_reg[106][15] <= 0;
+
+posibility_reg[107][0] <= 0;
+posibility_reg[107][1] <= 0;
+posibility_reg[107][2] <= 0;
+posibility_reg[107][3] <= 0;
+posibility_reg[107][4] <= 0;
+posibility_reg[107][5] <= 0;
+posibility_reg[107][6] <= 0;
+posibility_reg[107][7] <= 0;
+posibility_reg[107][8] <= 0;
+posibility_reg[107][9] <= 0;
+posibility_reg[107][10] <= 0;
+posibility_reg[107][11] <= 0;
+posibility_reg[107][12] <= 0;
+posibility_reg[107][13] <= 0;
+posibility_reg[107][14] <= 0;
+posibility_reg[107][15] <= 0;
+
+posibility_reg[108][0] <= 0;
+posibility_reg[108][1] <= 0;
+posibility_reg[108][2] <= 0;
+posibility_reg[108][3] <= 0;
+posibility_reg[108][4] <= 0;
+posibility_reg[108][5] <= 0;
+posibility_reg[108][6] <= 0;
+posibility_reg[108][7] <= 0;
+posibility_reg[108][8] <= 0;
+posibility_reg[108][9] <= 0;
+posibility_reg[108][10] <= 0;
+posibility_reg[108][11] <= 0;
+posibility_reg[108][12] <= 0;
+posibility_reg[108][13] <= 0;
+posibility_reg[108][14] <= 0;
+posibility_reg[108][15] <= 0;
+
+posibility_reg[109][0] <= 0;
+posibility_reg[109][1] <= 0;
+posibility_reg[109][2] <= 0;
+posibility_reg[109][3] <= 0;
+posibility_reg[109][4] <= 0;
+posibility_reg[109][5] <= 0;
+posibility_reg[109][6] <= 0;
+posibility_reg[109][7] <= 0;
+posibility_reg[109][8] <= 0;
+posibility_reg[109][9] <= 0;
+posibility_reg[109][10] <= 0;
+posibility_reg[109][11] <= 0;
+posibility_reg[109][12] <= 0;
+posibility_reg[109][13] <= 0;
+posibility_reg[109][14] <= 0;
+posibility_reg[109][15] <= 0;
+
+posibility_reg[110][0] <= 0;
+posibility_reg[110][1] <= 0;
+posibility_reg[110][2] <= 0;
+posibility_reg[110][3] <= 0;
+posibility_reg[110][4] <= 0;
+posibility_reg[110][5] <= 0;
+posibility_reg[110][6] <= 0;
+posibility_reg[110][7] <= 0;
+posibility_reg[110][8] <= 0;
+posibility_reg[110][9] <= 0;
+posibility_reg[110][10] <= 0;
+posibility_reg[110][11] <= 0;
+posibility_reg[110][12] <= 0;
+posibility_reg[110][13] <= 0;
+posibility_reg[110][14] <= 0;
+posibility_reg[110][15] <= 0;
+
+posibility_reg[111][0] <= 0;
+posibility_reg[111][1] <= 0;
+posibility_reg[111][2] <= 0;
+posibility_reg[111][3] <= 0;
+posibility_reg[111][4] <= 0;
+posibility_reg[111][5] <= 0;
+posibility_reg[111][6] <= 0;
+posibility_reg[111][7] <= 0;
+posibility_reg[111][8] <= 0;
+posibility_reg[111][9] <= 0;
+posibility_reg[111][10] <= 0;
+posibility_reg[111][11] <= 0;
+posibility_reg[111][12] <= 0;
+posibility_reg[111][13] <= 0;
+posibility_reg[111][14] <= 0;
+posibility_reg[111][15] <= 0;
+
+posibility_reg[112][0] <= 0;
+posibility_reg[112][1] <= 0;
+posibility_reg[112][2] <= 0;
+posibility_reg[112][3] <= 0;
+posibility_reg[112][4] <= 0;
+posibility_reg[112][5] <= 0;
+posibility_reg[112][6] <= 0;
+posibility_reg[112][7] <= 0;
+posibility_reg[112][8] <= 0;
+posibility_reg[112][9] <= 0;
+posibility_reg[112][10] <= 0;
+posibility_reg[112][11] <= 0;
+posibility_reg[112][12] <= 0;
+posibility_reg[112][13] <= 0;
+posibility_reg[112][14] <= 0;
+posibility_reg[112][15] <= 0;
+
+posibility_reg[113][0] <= 0;
+posibility_reg[113][1] <= 0;
+posibility_reg[113][2] <= 0;
+posibility_reg[113][3] <= 0;
+posibility_reg[113][4] <= 0;
+posibility_reg[113][5] <= 0;
+posibility_reg[113][6] <= 0;
+posibility_reg[113][7] <= 0;
+posibility_reg[113][8] <= 0;
+posibility_reg[113][9] <= 0;
+posibility_reg[113][10] <= 0;
+posibility_reg[113][11] <= 0;
+posibility_reg[113][12] <= 0;
+posibility_reg[113][13] <= 0;
+posibility_reg[113][14] <= 0;
+posibility_reg[113][15] <= 0;
+
+posibility_reg[114][0] <= 0;
+posibility_reg[114][1] <= 0;
+posibility_reg[114][2] <= 0;
+posibility_reg[114][3] <= 0;
+posibility_reg[114][4] <= 0;
+posibility_reg[114][5] <= 0;
+posibility_reg[114][6] <= 0;
+posibility_reg[114][7] <= 0;
+posibility_reg[114][8] <= 0;
+posibility_reg[114][9] <= 0;
+posibility_reg[114][10] <= 0;
+posibility_reg[114][11] <= 0;
+posibility_reg[114][12] <= 0;
+posibility_reg[114][13] <= 0;
+posibility_reg[114][14] <= 0;
+posibility_reg[114][15] <= 0;
+
+posibility_reg[115][0] <= 0;
+posibility_reg[115][1] <= 0;
+posibility_reg[115][2] <= 0;
+posibility_reg[115][3] <= 0;
+posibility_reg[115][4] <= 0;
+posibility_reg[115][5] <= 0;
+posibility_reg[115][6] <= 0;
+posibility_reg[115][7] <= 0;
+posibility_reg[115][8] <= 0;
+posibility_reg[115][9] <= 0;
+posibility_reg[115][10] <= 0;
+posibility_reg[115][11] <= 0;
+posibility_reg[115][12] <= 0;
+posibility_reg[115][13] <= 0;
+posibility_reg[115][14] <= 0;
+posibility_reg[115][15] <= 0;
+
+posibility_reg[116][0] <= 0;
+posibility_reg[116][1] <= 0;
+posibility_reg[116][2] <= 0;
+posibility_reg[116][3] <= 0;
+posibility_reg[116][4] <= 0;
+posibility_reg[116][5] <= 0;
+posibility_reg[116][6] <= 0;
+posibility_reg[116][7] <= 0;
+posibility_reg[116][8] <= 0;
+posibility_reg[116][9] <= 0;
+posibility_reg[116][10] <= 0;
+posibility_reg[116][11] <= 0;
+posibility_reg[116][12] <= 0;
+posibility_reg[116][13] <= 0;
+posibility_reg[116][14] <= 0;
+posibility_reg[116][15] <= 0;
+
+posibility_reg[117][0] <= 0;
+posibility_reg[117][1] <= 0;
+posibility_reg[117][2] <= 0;
+posibility_reg[117][3] <= 0;
+posibility_reg[117][4] <= 0;
+posibility_reg[117][5] <= 0;
+posibility_reg[117][6] <= 0;
+posibility_reg[117][7] <= 0;
+posibility_reg[117][8] <= 0;
+posibility_reg[117][9] <= 0;
+posibility_reg[117][10] <= 0;
+posibility_reg[117][11] <= 0;
+posibility_reg[117][12] <= 0;
+posibility_reg[117][13] <= 0;
+posibility_reg[117][14] <= 0;
+posibility_reg[117][15] <= 0;
+
+posibility_reg[118][0] <= 0;
+posibility_reg[118][1] <= 0;
+posibility_reg[118][2] <= 0;
+posibility_reg[118][3] <= 0;
+posibility_reg[118][4] <= 0;
+posibility_reg[118][5] <= 0;
+posibility_reg[118][6] <= 0;
+posibility_reg[118][7] <= 0;
+posibility_reg[118][8] <= 0;
+posibility_reg[118][9] <= 0;
+posibility_reg[118][10] <= 0;
+posibility_reg[118][11] <= 0;
+posibility_reg[118][12] <= 0;
+posibility_reg[118][13] <= 0;
+posibility_reg[118][14] <= 0;
+posibility_reg[118][15] <= 0;
+
+posibility_reg[119][0] <= 0;
+posibility_reg[119][1] <= 0;
+posibility_reg[119][2] <= 0;
+posibility_reg[119][3] <= 0;
+posibility_reg[119][4] <= 0;
+posibility_reg[119][5] <= 0;
+posibility_reg[119][6] <= 0;
+posibility_reg[119][7] <= 0;
+posibility_reg[119][8] <= 0;
+posibility_reg[119][9] <= 0;
+posibility_reg[119][10] <= 0;
+posibility_reg[119][11] <= 0;
+posibility_reg[119][12] <= 0;
+posibility_reg[119][13] <= 0;
+posibility_reg[119][14] <= 0;
+posibility_reg[119][15] <= 0;
+
+posibility_reg[120][0] <= 0;
+posibility_reg[120][1] <= 0;
+posibility_reg[120][2] <= 0;
+posibility_reg[120][3] <= 0;
+posibility_reg[120][4] <= 0;
+posibility_reg[120][5] <= 0;
+posibility_reg[120][6] <= 0;
+posibility_reg[120][7] <= 0;
+posibility_reg[120][8] <= 0;
+posibility_reg[120][9] <= 0;
+posibility_reg[120][10] <= 0;
+posibility_reg[120][11] <= 0;
+posibility_reg[120][12] <= 0;
+posibility_reg[120][13] <= 0;
+posibility_reg[120][14] <= 0;
+posibility_reg[120][15] <= 0;
+    end
+  else begin
+    if(RW_HMM_matrix) begin
+      if(change_enable) begin
+        previous_addr[POS][key_HMM_matrix] <= change_pre_addr; 
+        for(i = 0; i < POS_num; i = i + 1) begin
+          if(i != change_p_index)
+            posibility_reg[i + POS*POS_num][key_HMM_matrix] <= 0;
+        end
+      end
+      else begin
+        if(posibility != 0) begin
+            previous_addr[POS][key_HMM_matrix][pre_addr_HMM_matrix_in] = 1'b1;
+            posibility_reg[pre_addr_HMM_matrix_in + POS*POS_num][key_HMM_matrix] <= posibility;
+        end
+      end
+    end
+  end
+end
+
+endmodule
